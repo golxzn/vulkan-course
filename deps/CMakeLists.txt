@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.25)
 
 set(libraries)
 
-macro(vc_add_subdirectory directory link_target)
-	add_subdirectory(${directory} ${ARGN})
+macro(vc_add_subdirectory name link_target)
+	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${name} ${ARGN})
 	list(APPEND _libraries ${link_target})
 endmacro()
 
@@ -13,7 +13,13 @@ endmacro()
 find_package(Vulkan REQUIRED)
 list(APPEND libraries Vulkan::Vulkan)
 
-#======================================== glm ========================================#
+#============================= glfw =============================#
+
+option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
+option(GLFW_INSTALL "Generate installation target" OFF)
+vc_add_subdirectory(glfw glfw)
+
+#============================= glm ==============================#
 
 # option(GLM_ENABLE_CXX_20 "Enable C++20 features" ON)
 # vkl_add_subdirectory(${vkl_deps_dir}/glm glm::glm)

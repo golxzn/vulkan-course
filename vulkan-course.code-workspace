@@ -1,0 +1,44 @@
+{
+	"folders": [
+		{ "path": "." }
+	],
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				"name": "[DBG][CMake] Launch",
+				"type": "cppdbg",
+				"request": "launch",
+				"program": "${command:cmake.launchTargetPath}",
+				"cwd": "${workspaceFolder}",
+				"stopAtEntry": false,
+				"linux": {
+					"MIMode": "gdb",
+					"miDebuggerPath": "gdb"
+				},
+				"osx": {
+					"MIMode": "lldb",
+					"miDebuggerPath": "lldb-mi"
+				},
+				"windows": {
+					"MIMode": "gdb",
+					"miDebuggerPath": "gdb.exe"
+				},
+			},
+			{
+				"name": "[VSDBG][CMake] Launch",
+				"type": "cppvsdbg",
+				"request": "launch",
+				"program": "${command:cmake.launchTargetPath}",
+				"cwd": "${workspaceFolder}",
+				"stopAtEntry": false
+			}
+		],
+		"compounds": []
+	},
+	"settings": {
+		"cSpell.words": [
+			"directx"
+		]
+	}
+}

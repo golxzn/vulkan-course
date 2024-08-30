@@ -17,5 +17,5 @@ file(GLOB_RECURSE vc_headers CONFIGURE_DEPENDS ${vc_root}/code/*.hpp)
 
 add_executable(${PROJECT_NAME} ${vc_sources} ${vc_headers})
 target_include_directories(${PROJECT_NAME} PRIVATE ${vc_root}/code/)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${ALIAS_PREFIX}::deps)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${ALIAS_PREFIX}::deps glfw)
 

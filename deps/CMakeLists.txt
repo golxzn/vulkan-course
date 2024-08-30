@@ -21,9 +21,8 @@ vc_add_subdirectory(glfw glfw)
 
 #============================= glm ==============================#
 
-# option(GLM_ENABLE_CXX_20 "Enable C++20 features" ON)
-# vkl_add_subdirectory(${vkl_deps_dir}/glm glm::glm)
-
+option(GLM_ENABLE_CXX_20 "Enable C++20 features" ON)
+vc_add_subdirectory(glm glm::glm)
 
 #================== LIBRARIES CONTAINER TARGET ==================#
 

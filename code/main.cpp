@@ -1,26 +1,11 @@
 #include <cstdio>
+#include <exception>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
+#include "game/game_instance.hpp"
 
-#include <glm/mat4x4.hpp>
-#include <glm/vec4.hpp>
-
-int main() {
-	glfwInit();
-
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	auto window{ glfwCreateWindow(1024, 720, "Vulkan Course", nullptr, nullptr) };
-
-	uint32_t extensions_count{};
-	vkEnumerateInstanceExtensionProperties(nullptr, &extensions_count, nullptr);
-
-	std::printf("Vulkan extensions count: %u", extensions_count);
-
-	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
-	}
-
-	glfwDestroyWindow(std::exchange(window, nullptr));
-	glfwTerminate();
+int main() try {
+	return vc::game::game_instance{}.run();
+} catch (const std::exception &e) {
+	std::printf("[main] Fatal error: %s\n", e.what());
+	return EXIT_FAILURE;
 }

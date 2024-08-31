@@ -22,6 +22,7 @@ public:
 	void pull_events();
 
 	[[nodiscard]] bool is_closing() const noexcept;
+	[[nodiscard]] auto make_surface(VkInstance instance) noexcept -> VkSurfaceKHR;
 
 private:
 	glfw::unique_window m_window;

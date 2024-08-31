@@ -6,7 +6,7 @@ set(libraries)
 
 macro(vc_add_subdirectory name link_target)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/${name} ${ARGN})
-	list(APPEND _libraries ${link_target})
+	list(APPEND libraries ${link_target})
 endmacro()
 
 
@@ -29,6 +29,10 @@ target_compile_definitions(glm PUBLIC
 	GLM_FORCE_RADIANS
 	GLM_FORCE_DEPTH_ZERO_TO_ONE
 )
+
+#============================= fmt ==============================#
+
+vc_add_subdirectory(fmt fmt::fmt)
 
 #================== LIBRARIES CONTAINER TARGET ==================#
 

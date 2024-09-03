@@ -3,6 +3,7 @@
 #include "core/window.hpp"
 #include "engine/graphics/device.hpp"
 #include "engine/graphics/pipeline.hpp"
+#include "engine/graphics/swap-chain.hpp"
 
 namespace vc::game {
 
@@ -11,19 +12,42 @@ namespace constants {
 constexpr glm::i32vec2     window_size { 1024, 720       };
 constexpr std::string_view window_title{ "Vulkan Course" };
 constexpr std::string_view default_shader{ "assets/shaders/primitive/primitive" };
+constexpr std::array<VkClearValue, 2> clear_values{
+	VkClearValue{ .color = { 0.1f, 0.1f, 0.1f, 0.1f } },
+	VkClearValue{ .depthStencil = { 1.0f, 0 } }
+};
 
 } // namespace constants
 
 
 class game_instance {
 public:
+	game_instance();
+	~game_instance();
+
+	game_instance(const game_instance &) = delete;
+	game_instance &operator=(const game_instance &) = delete;
+
 	int run();
 
 private:
-	core::window               m_window  { constants::window_size, constants::window_title };
-	engine::graphics::device   m_device  { m_window };
-	engine::graphics::pipeline m_pipeline{ m_device, constants::default_shader,
-		engine::graphics::pipeline_config{ constants::window_size } };
+	core::window                 m_window    { constants::window_size, constants::window_title };
+	engine::graphics::device     m_device    { m_window };
+	engine::graphics::swap_chain m_swap_chain{ m_device, m_window.extent() };
+	VkPipelineLayout             m_pipeline_layout;
+	std::optional<engine::graphics::pipeline> m_pipeline;
+	std::vector<VkCommandBuffer> m_command_buffers;
+
+	void render_frame();
+
+	void construct_pipeline();
+	void construct_command_buffers();
+};
+
+class game_instance_error : public std::runtime_error {
+public:
+	using base_type = std::runtime_error;
+	using base_type::runtime_error;
 };
 
 } // namespace vc::game

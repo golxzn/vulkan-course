@@ -37,6 +37,16 @@ VkSurfaceKHR window::make_surface(VkInstance instance) noexcept {
 	return VK_NULL_HANDLE;
 }
 
+VkExtent2D window::extent() const noexcept {
+	int32_t width;
+	int32_t height;
+	glfwGetWindowSize(m_window.get(), &width, &height);
+	return VkExtent2D{
+		.width  = static_cast<uint32_t>(width),
+		.height = static_cast<uint32_t>(height),
+	};
+}
+
 glfw::unique_window window::make_instance(const glm::i32vec2 size, const std::string_view title) {
 	static bool instantiated{ false };
 	if (instantiated) {

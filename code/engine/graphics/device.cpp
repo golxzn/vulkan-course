@@ -111,7 +111,7 @@ uint32_t device::find_memory_type(const uint32_t filter, const VkMemoryPropertyF
 	VkPhysicalDeviceMemoryProperties memory_properties;
 	vkGetPhysicalDeviceMemoryProperties(m_physical_device, &memory_properties);
 	for (uint32_t i{}; i < memory_properties.memoryTypeCount; ++i) {
-		if ((filter & (1 << i)) & (memory_properties.memoryTypes[i].propertyFlags & properties)) {
+		if ((filter & (1 << i)) && ((memory_properties.memoryTypes[i].propertyFlags & properties) == properties)) {
 			return i;
 		}
 	}
@@ -128,14 +128,15 @@ queue_family_indices device::find_queue_families() {
 
 VkFormat device::find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
 	VkFormatProperties props;
-	VkFormatFeatureFlags *selected_features{ nullptr };
+	const VkFormatFeatureFlags *selected_features{ nullptr };
 	switch (tiling) {
-		case VK_IMAGE_TILING_LINEAR:
-			selected_features = &props.linearTilingFeatures;
-			break;
 		case VK_IMAGE_TILING_OPTIMAL:
 			selected_features = &props.optimalTilingFeatures;
 			break;
+		case VK_IMAGE_TILING_LINEAR:
+			selected_features = &props.linearTilingFeatures;
+			break;
+
 		default:
 			throw device_error{ "Unsupported tiling format." };
 	}
@@ -245,6 +246,10 @@ void device::copy_buffer_to_image(VkBuffer source, VkImage image, glm::u32vec2 s
 		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	end_single_time_commands(command_buffer);
+}
+
+void device::wait_for_idle() const noexcept {
+	vkDeviceWaitIdle(m_device);
 }
 
 VkImage device::make_image(const VkImageCreateInfo &info, VkMemoryPropertyFlags properties, VkDeviceMemory &image_memory) {

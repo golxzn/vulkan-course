@@ -6,7 +6,9 @@
 namespace vc::engine::graphics {
 
 struct pipeline_config {
+	pipeline_config() = default;
 	explicit pipeline_config(const glm::vec2 size) noexcept;
+	explicit pipeline_config(const VkExtent2D size) noexcept;
 
 	VkViewport viewport{
 		.x        = 0.0f, .y        = 0.0f,
@@ -16,13 +18,6 @@ struct pipeline_config {
 	VkRect2D   scissor{
 		.offset = VkOffset2D{ 0, 0 },
 		.extent = VkExtent2D{ 0, 0 }
-	};
-	VkPipelineViewportStateCreateInfo viewport_info{
-		.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
-		.viewportCount = 1,
-		.pViewports    = &viewport,
-		.scissorCount  = 1,
-		.pScissors     = &scissor
 	};
 	VkPipelineInputAssemblyStateCreateInfo input_assembly_create_info{
 		.sType    = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,

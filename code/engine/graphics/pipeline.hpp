@@ -34,6 +34,7 @@ namespace constants {
 constexpr std::string_view shader_stage_entry_point      { "main"          };
 constexpr std::string_view compiled_shader_file_extension{ ".spv"          };
 constexpr size_t           shader_file_extention_size    { sizeof(".vert") };
+constexpr size_t           content_buffer_initial_size   { 2048            };
 
 static const std::unordered_map<shader_type, std::string_view> shader_extensions{
 	{ shader_type::vertex,                   ".vert" },
@@ -54,6 +55,8 @@ public:
 	pipeline(const pipeline &) = delete;
 	pipeline &operator=(const pipeline &) = delete;
 
+	void bind(VkCommandBuffer buffer, VkPipelineBindPoint bind_point = VK_PIPELINE_BIND_POINT_GRAPHICS);
+
 private:
 	device &m_device;
 	std::unordered_map<shader_type, VkShaderModule> m_shaders{
@@ -71,7 +74,7 @@ private:
 	auto make_shader(const std::string_view filename, const std::vector<char> &code)
 		-> VkShaderModule;
 
-	static std::vector<char> load_file(std::string_view filename);
+	static bool load_file_to(std::vector<char> &buffer, std::string_view filename);
 
 };
 

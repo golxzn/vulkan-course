@@ -23,6 +23,7 @@ public:
 
 	[[nodiscard]] bool is_closing() const noexcept;
 	[[nodiscard]] auto make_surface(VkInstance instance) noexcept -> VkSurfaceKHR;
+	[[nodiscard]] auto extent() const noexcept -> VkExtent2D;
 
 private:
 	glfw::unique_window m_window;

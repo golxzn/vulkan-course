@@ -53,7 +53,7 @@ public:
 	device &operator=(device &&) noexcept = delete;
 
 	[[nodiscard]] decltype(auto) command_pool() noexcept { return m_command_pool; }
-	[[nodiscard]] decltype(auto) device_handle() noexcept { return m_device; }
+	[[nodiscard]] decltype(auto) handle() noexcept { return m_device; }
 	[[nodiscard]] decltype(auto) surface() noexcept { return m_surface; }
 	[[nodiscard]] decltype(auto) graphics_queue() noexcept { return m_graphics_queue; }
 	[[nodiscard]] decltype(auto) present_queue() noexcept { return m_present_queue; }
@@ -72,6 +72,8 @@ public:
 
 	void copy_buffer(VkBuffer source, VkBuffer destination, VkDeviceSize size);
 	void copy_buffer_to_image(VkBuffer source, VkImage image, glm::u32vec2 size, uint32_t layers);
+
+	void wait_for_idle() const noexcept;
 
 	[[nodiscard]] auto make_image(const VkImageCreateInfo &info, VkMemoryPropertyFlags properties,
 		VkDeviceMemory &image_memory) -> VkImage;

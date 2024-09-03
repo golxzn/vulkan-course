@@ -60,7 +60,13 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 		.vertexAttributeDescriptionCount = 0,
 		.pVertexAttributeDescriptions    = nullptr
 	};
-
+	const VkPipelineViewportStateCreateInfo viewport_state{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,
+		.viewportCount = 1,
+		.pViewports    = &config.viewport,
+		.scissorCount  = 1,
+		.pScissors     = &config.scissor
+	};
 	const VkGraphicsPipelineCreateInfo pipeline_info{
 		.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
 		.stageCount          = static_cast<uint32_t>(std::size(stages)),
@@ -68,7 +74,7 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 		.pVertexInputState   = &vertex_input_create_info,
 		.pInputAssemblyState = &config.input_assembly_create_info,
 		.pTessellationState  = nullptr,
-		.pViewportState      = &config.viewport_info,
+		.pViewportState      = &viewport_state,
 		.pRasterizationState = &config.rasterization_create_info,
 		.pMultisampleState   = &config.multi_sample_create_info,
 		.pDepthStencilState  = &config.depth_stencil_create_info,
@@ -82,7 +88,7 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 	};
 
 	const auto status{ vkCreateGraphicsPipelines(
-		dev.device_handle(),
+		dev.handle(),
 		VK_NULL_HANDLE,
 		1,
 		&pipeline_info,
@@ -96,7 +102,7 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 }
 
 pipeline::~pipeline() {
-	const auto device{ m_device.device_handle() };
+	const auto device{ m_device.handle() };
 	for (const auto &[_, shader_module] : m_shaders) {
 		if (shader_module != nullptr) {
 			vkDestroyShaderModule(device, shader_module, nullptr);
@@ -106,23 +112,28 @@ pipeline::~pipeline() {
 	vkDestroyPipeline(device, m_pipeline, nullptr);
 }
 
+void pipeline::bind(VkCommandBuffer buffer, const VkPipelineBindPoint bind_point) {
+	vkCmdBindPipeline(buffer, bind_point, m_pipeline);
+}
+
 size_t pipeline::load_shaders(const std::string_view shader) {
 	const auto name_length{ std::size(shader) };
 
 	std::string filename(
 		name_length + constants::shader_file_extention_size +
-		std::size(constants::compiled_shader_file_extension), '\0'
+		std::size(constants::compiled_shader_file_extension) - 1, '\0'
 	);
 	std::copy_n(std::begin(shader), name_length, std::begin(filename));
 	std::copy_n(std::rbegin(constants::compiled_shader_file_extension),
 		std::size(constants::compiled_shader_file_extension), std::rbegin(filename));
 
 	size_t loaded_counter{};
+	std::vector<char> content(constants::content_buffer_initial_size);
 	for (const auto &[type, extension] : constants::shader_extensions) {
 		std::copy_n(std::begin(extension), std::size(extension),
 			std::next(std::begin(filename), name_length));
 
-		if (const auto content{ load_file(filename) }; !std::empty(content)) {
+		if (load_file_to(content, filename)) {
 			m_shaders.insert_or_assign(type, make_shader(filename, content));
 			++loaded_counter;
 		}
@@ -138,7 +149,7 @@ VkShaderModule pipeline::make_shader(const std::string_view filename, const std:
 	};
 
 	VkShaderModule shader;
-	if (VK_SUCCESS != vkCreateShaderModule(m_device.device_handle(), &create_info, nullptr, &shader)) {
+	if (VK_SUCCESS != vkCreateShaderModule(m_device.handle(), &create_info, nullptr, &shader)) {
 		throw pipeline_error{ fmt::format(
 			R"(Failed to create shader module from "%s" file.)", filename
 		) };
@@ -146,15 +157,14 @@ VkShaderModule pipeline::make_shader(const std::string_view filename, const std:
 	return shader;
 }
 
-std::vector<char> pipeline::load_file(const std::string_view filename) {
+bool pipeline::load_file_to(std::vector<char> &buffer, const std::string_view filename) {
 	if (std::ifstream file{ std::data(filename), std::ios::ate | std::ios::binary }; file.is_open()) {
-		std::vector<char> content( static_cast<size_t>(file.tellg()) );
+		buffer.resize(static_cast<size_t>(file.tellg()));
 		file.seekg(std::ios::beg);
-		file.read(std::data(content), std::size(content));
-		return std::move(content);
+		file.read(std::data(buffer), std::size(buffer));
+		return std::size(buffer) > 0;
 	}
-
-	return {};
+	return false;
 }
 
 } // namespace vc::engine::graphics

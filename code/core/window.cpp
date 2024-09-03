@@ -1,5 +1,6 @@
 
 #include "core/window.hpp"
+#include "engine/graphics/vulkan-instance.hpp"
 
 namespace vc::core {
 
@@ -28,9 +29,9 @@ bool window::is_closing() const noexcept {
 	return glfwWindowShouldClose(m_window.get());
 }
 
-VkSurfaceKHR window::make_surface(VkInstance instance) noexcept {
+VkSurfaceKHR window::make_surface(const engine::graphics::vulkan_instance &instance) noexcept {
 	if (VkSurfaceKHR surface;
-		glfwCreateWindowSurface(instance, m_window.get(), nullptr, &surface) == VK_SUCCESS) {
+		glfwCreateWindowSurface(instance.handle(), m_window.get(), nullptr, &surface) == VK_SUCCESS) {
 		return surface;
 	}
 

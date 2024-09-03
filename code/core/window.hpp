@@ -6,6 +6,7 @@
 
 #include "core/glfw-header.hpp"
 
+namespace vc::engine::graphics { class vulkan_instance; }
 
 namespace vc::core {
 
@@ -22,7 +23,7 @@ public:
 	void pull_events();
 
 	[[nodiscard]] bool is_closing() const noexcept;
-	[[nodiscard]] auto make_surface(VkInstance instance) noexcept -> VkSurfaceKHR;
+	[[nodiscard]] auto make_surface(const engine::graphics::vulkan_instance &instance) noexcept -> VkSurfaceKHR;
 	[[nodiscard]] auto extent() const noexcept -> VkExtent2D;
 
 private:

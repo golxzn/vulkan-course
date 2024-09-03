@@ -4,6 +4,7 @@
 #include "engine/graphics/device.hpp"
 #include "engine/graphics/pipeline.hpp"
 #include "engine/graphics/swap-chain.hpp"
+#include "engine/graphics/vulkan-instance.hpp"
 
 namespace vc::game {
 
@@ -31,7 +32,8 @@ public:
 
 private:
 	core::window                              m_window         { constants::window_size, constants::window_title };
-	engine::graphics::device                  m_device         { m_window };
+	engine::graphics::vulkan_instance         m_instance       {};
+	engine::graphics::device                  m_device         { m_instance, m_window };
 	engine::graphics::swap_chain              m_swap_chain     { m_device, m_window.extent() };
 	engine::graphics::pipeline_layout         m_pipeline_layout{ m_device };
 	std::optional<engine::graphics::pipeline> m_pipeline;

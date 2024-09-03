@@ -23,7 +23,6 @@ constexpr std::array<VkClearValue, 2> clear_values{
 class game_instance {
 public:
 	game_instance();
-	~game_instance();
 
 	game_instance(const game_instance &) = delete;
 	game_instance &operator=(const game_instance &) = delete;
@@ -31,12 +30,12 @@ public:
 	int run();
 
 private:
-	core::window                 m_window    { constants::window_size, constants::window_title };
-	engine::graphics::device     m_device    { m_window };
-	engine::graphics::swap_chain m_swap_chain{ m_device, m_window.extent() };
-	VkPipelineLayout             m_pipeline_layout;
+	core::window                              m_window         { constants::window_size, constants::window_title };
+	engine::graphics::device                  m_device         { m_window };
+	engine::graphics::swap_chain              m_swap_chain     { m_device, m_window.extent() };
+	engine::graphics::pipeline_layout         m_pipeline_layout{ m_device };
 	std::optional<engine::graphics::pipeline> m_pipeline;
-	std::vector<VkCommandBuffer> m_command_buffers;
+	std::vector<VkCommandBuffer>              m_command_buffers;
 
 	void render_frame();
 

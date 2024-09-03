@@ -9,6 +9,8 @@
 
 namespace vc::engine::graphics {
 
+#pragma region pipeline
+
 pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_config &config)
 	: m_device{ dev } {
 
@@ -166,5 +168,32 @@ bool pipeline::load_file_to(std::vector<char> &buffer, const std::string_view fi
 	}
 	return false;
 }
+
+#pragma endregion pipeline
+
+#pragma region pipeline_layout
+
+pipeline_layout::pipeline_layout(device &dev,
+	const std::span<VkDescriptorSetLayout> set_layouts,
+	const std::span<VkPushConstantRange> constant_ranges
+) : m_device{ dev } {
+	const VkPipelineLayoutCreateInfo layout_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
+		.setLayoutCount         = static_cast<uint32_t>(std::size(set_layouts)),
+		.pSetLayouts            = std::data(set_layouts),
+		.pushConstantRangeCount = static_cast<uint32_t>(std::size(constant_ranges)),
+		.pPushConstantRanges    = std::data(constant_ranges)
+	};
+
+	if (VK_SUCCESS != vkCreatePipelineLayout(m_device.handle(), &layout_info, nullptr, &m_layout)) {
+		throw pipeline_error{ "Failed to create pipeline layout." };
+	}
+}
+
+pipeline_layout::~pipeline_layout() {
+	vkDestroyPipelineLayout(m_device.handle(), m_layout, nullptr);
+}
+
+#pragma endregion pipeline_layout
 
 } // namespace vc::engine::graphics

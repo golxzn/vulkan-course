@@ -1,5 +1,6 @@
 #pragma once
 
+#include <span>
 #include <vector>
 #include <cstdint>
 #include <exception>
@@ -76,6 +77,24 @@ private:
 
 	static bool load_file_to(std::vector<char> &buffer, std::string_view filename);
 
+};
+
+class pipeline_layout {
+public:
+	explicit pipeline_layout(device &device,
+		const std::span<VkDescriptorSetLayout> set_layouts = {},
+		const std::span<VkPushConstantRange> constant_ranges = {});
+
+	~pipeline_layout();
+
+	pipeline_layout(const pipeline_layout &) = delete;
+	pipeline_layout &operator=(const pipeline_layout &) = delete;
+
+	[[nodiscard]] explicit operator VkPipelineLayout() const noexcept { return m_layout; }
+
+private:
+	device &m_device;
+	VkPipelineLayout m_layout;
 };
 
 } // namespace vc::engine::graphics

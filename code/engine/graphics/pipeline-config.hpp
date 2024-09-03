@@ -6,10 +6,6 @@
 namespace vc::engine::graphics {
 
 struct pipeline_config {
-	pipeline_config() = default;
-	explicit pipeline_config(const glm::vec2 size) noexcept;
-	explicit pipeline_config(const VkExtent2D size) noexcept;
-
 	VkViewport viewport{
 		.x        = 0.0f, .y        = 0.0f,
 		.width    = 0.0f, .height   = 0.0f,

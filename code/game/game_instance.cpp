@@ -9,10 +9,6 @@ game_instance::game_instance() {
 	construct_command_buffers();
 }
 
-game_instance::~game_instance() {
-	vkDestroyPipelineLayout(m_device.handle(), m_pipeline_layout, nullptr);
-}
-
 int game_instance::run() {
 	while (!m_window.is_closing()) {
 		m_window.pull_events();
@@ -35,23 +31,16 @@ void game_instance::render_frame() {
 }
 
 void game_instance::construct_pipeline() {
-	const VkPipelineLayoutCreateInfo layout_info{
-		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-		.setLayoutCount         = 0,
-		.pSetLayouts            = nullptr,
-		.pushConstantRangeCount = 0,
-		.pPushConstantRanges    = nullptr
-	};
-
-	if (VK_SUCCESS != vkCreatePipelineLayout(m_device.handle(), &layout_info, nullptr, &m_pipeline_layout)) {
-		throw game_instance_error{ "Failed to create pipeline layout." };
-	}
-
-	engine::graphics::pipeline_config config{ m_swap_chain.extent() };
-	config.render_pass = m_swap_chain.render_pass();
-	config.layout      = m_pipeline_layout;
-
-	m_pipeline.emplace(m_device, constants::default_shader, config);
+	const auto extent{ m_swap_chain.extent() };
+	m_pipeline.emplace(m_device, constants::default_shader, engine::graphics::pipeline_config{
+		.viewport = {
+			.width  = static_cast<float>(extent.width),
+			.height = static_cast<float>(extent.height),
+		},
+		.scissor     = { .extent = extent },
+		.layout      = static_cast<VkPipelineLayout>(m_pipeline_layout),
+		.render_pass = m_swap_chain.render_pass()
+	});
 }
 
 void game_instance::construct_command_buffers() {

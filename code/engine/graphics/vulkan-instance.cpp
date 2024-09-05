@@ -110,6 +110,28 @@ void vulkan_instance::construct_debug_messenger() {
 	}
 }
 
+bool vulkan_instance::check_validation_layer_support() const {
+	uint32_t layers_count{};
+	vkEnumerateInstanceLayerProperties(&layers_count, nullptr);
+
+	std::vector<VkLayerProperties> properties(layers_count);
+	vkEnumerateInstanceLayerProperties(&layers_count, std::data(properties));
+
+	for (const std::string_view layer_name : constants::validation_layers) {
+		bool found{ false };
+		for (const auto &property : properties) {
+			if (layer_name == property.layerName) {
+				found = true;
+				break;
+			}
+		}
+
+		if (!found) return false;
+	}
+
+	return true;
+}
+
 #endif // defined(VC_DEBUG)
 
 void vulkan_instance::construct_instance() {
@@ -150,29 +172,6 @@ void vulkan_instance::construct_instance() {
 
 	has_glfw_required_instance_extensions();
 }
-
-bool vulkan_instance::check_validation_layer_support() const {
-	uint32_t layers_count{};
-	vkEnumerateInstanceLayerProperties(&layers_count, nullptr);
-
-	std::vector<VkLayerProperties> properties(layers_count);
-	vkEnumerateInstanceLayerProperties(&layers_count, std::data(properties));
-
-	for (const std::string_view layer_name : constants::validation_layers) {
-		bool found{ false };
-		for (const auto &property : properties) {
-			if (layer_name == property.layerName) {
-				found = true;
-				break;
-			}
-		}
-
-		if (!found) return false;
-	}
-
-	return true;
-}
-
 
 std::vector<const char *> vulkan_instance::required_extensions() const {
 	uint32_t glfw_extensions_count{};

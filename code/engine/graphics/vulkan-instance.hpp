@@ -14,10 +14,6 @@ constexpr std::array validation_layers{
 	"VK_LAYER_KHRONOS_validation"
 };
 
-constexpr std::array device_extensions{
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME
-};
-
 } // namespace constants
 
 class vulkan_instance {
@@ -38,11 +34,11 @@ private:
 
 	VkDebugUtilsMessengerCreateInfoEXT make_debug_messenger_create_info();
 	void construct_debug_messenger();
+	bool check_validation_layer_support() const;
 #endif // defined(VC_DEBUG)
 
 	void construct_instance();
 
-	bool check_validation_layer_support() const;
 	auto required_extensions() const -> std::vector<const char *>;
 	void has_glfw_required_instance_extensions() const;
 };

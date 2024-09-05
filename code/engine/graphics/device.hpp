@@ -11,6 +11,14 @@ namespace vc::engine::graphics {
 
 class vulkan_instance;
 
+namespace constants {
+
+constexpr std::array device_extensions{
+	VK_KHR_SWAPCHAIN_EXTENSION_NAME
+};
+
+} // namespace constants
+
 struct swap_chain_support_details {
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;

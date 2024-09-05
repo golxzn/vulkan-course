@@ -5,3 +5,4 @@ bin/
 .config
 ./*.ini
 *.spv
+*.bkp

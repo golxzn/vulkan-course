@@ -198,7 +198,7 @@ void swap_chain::construct_render_pass() {
 
 	const std::array<const VkAttachmentDescription, ATTACHMENTS_COUNT> attachments{
 		VkAttachmentDescription{
-			.format         = image_format(),
+			.format         = m_image_format,
 			.samples        = VK_SAMPLE_COUNT_1_BIT,
 			.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR,
 			.storeOp        = VK_ATTACHMENT_STORE_OP_STORE,

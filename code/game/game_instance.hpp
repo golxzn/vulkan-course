@@ -10,8 +10,8 @@ namespace vc::game {
 
 namespace constants {
 
-constexpr glm::i32vec2     window_size { 1024, 720       };
-constexpr std::string_view window_title{ "Vulkan Course" };
+constexpr glm::i32vec2     window_size   { 1024, 720       };
+constexpr std::string_view window_title  { "Vulkan Course" };
 constexpr std::string_view default_shader{ "assets/shaders/primitive/primitive" };
 constexpr std::array<VkClearValue, 2> clear_values{
 	VkClearValue{ .color = { 0.1f, 0.1f, 0.1f, 0.1f } },

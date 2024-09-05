@@ -3,6 +3,8 @@
 #include <glm/vec2.hpp>
 #include <vulkan/vulkan.h>
 
+#include "core/types.hpp"
+
 namespace vc::engine::graphics {
 
 struct pipeline_config {

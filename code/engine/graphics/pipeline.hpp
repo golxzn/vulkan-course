@@ -81,8 +81,8 @@ private:
 class pipeline_layout {
 public:
 	explicit pipeline_layout(device &device,
-		const std::span<VkDescriptorSetLayout> set_layouts = {},
-		const std::span<VkPushConstantRange> constant_ranges = {});
+		const std::span<const VkDescriptorSetLayout> set_layouts = {},
+		const std::span<const VkPushConstantRange> constant_ranges = {});
 
 	~pipeline_layout();
 

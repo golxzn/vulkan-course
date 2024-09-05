@@ -174,8 +174,8 @@ bool pipeline::load_file_to(std::vector<char> &buffer, const std::string_view fi
 #pragma region pipeline_layout
 
 pipeline_layout::pipeline_layout(device &dev,
-	const std::span<VkDescriptorSetLayout> set_layouts,
-	const std::span<VkPushConstantRange> constant_ranges
+	const std::span<const VkDescriptorSetLayout> set_layouts,
+	const std::span<const VkPushConstantRange> constant_ranges
 ) : m_device{ dev } {
 	const VkPipelineLayoutCreateInfo layout_info{
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,

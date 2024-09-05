@@ -16,7 +16,7 @@ class device;
 
 namespace constants {
 
-constexpr i32  max_frames_in_flight{ 2 };
+constexpr i32 max_frames_in_flight{ 2 };
 constexpr u64 fence_wait_timeout  { std::numeric_limits<u64>::max() };
 constexpr u64 acquire_next_timeout{ std::numeric_limits<u64>::max() };
 

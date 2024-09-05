@@ -4,7 +4,7 @@
 
 #include <fmt/core.h>
 
-#include "engine/graphics/device.hpp"
+#include "engine/resources/model.hpp"
 #include "engine/graphics/pipeline.hpp"
 
 namespace vc::engine::graphics {
@@ -55,12 +55,15 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 		);
 	}
 
+	const auto vertex_binding_descriptions{ resources::model::vertex::binding_description() };
+	const auto vertex_attribute_descriptions{ resources::model::vertex::attribute_description() };
+
 	const VkPipelineVertexInputStateCreateInfo vertex_input_create_info{
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
-		.vertexBindingDescriptionCount   = 0,
-		.pVertexBindingDescriptions      = nullptr,
-		.vertexAttributeDescriptionCount = 0,
-		.pVertexAttributeDescriptions    = nullptr
+		.vertexBindingDescriptionCount   = static_cast<u32>(std::size(vertex_binding_descriptions)),
+		.pVertexBindingDescriptions      = std::data(vertex_binding_descriptions),
+		.vertexAttributeDescriptionCount = static_cast<u32>(std::size(vertex_attribute_descriptions)),
+		.pVertexAttributeDescriptions    = std::data(vertex_attribute_descriptions)
 	};
 	const VkPipelineViewportStateCreateInfo viewport_state{
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO,

@@ -6,6 +6,8 @@
 #include "engine/graphics/swap-chain.hpp"
 #include "engine/graphics/vulkan-instance.hpp"
 
+#include "engine/resources/model.hpp"
+
 namespace vc::game {
 
 namespace constants {
@@ -38,11 +40,14 @@ private:
 	engine::graphics::pipeline_layout         m_pipeline_layout{ m_device };
 	std::optional<engine::graphics::pipeline> m_pipeline;
 	std::vector<VkCommandBuffer>              m_command_buffers;
+	std::unique_ptr<engine::resources::model> m_model;
 
 	void render_frame();
 
 	void construct_pipeline();
 	void construct_command_buffers();
+
+	void load_models();
 };
 
 class game_instance_error : public std::runtime_error {

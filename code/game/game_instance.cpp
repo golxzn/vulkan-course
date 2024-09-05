@@ -5,6 +5,7 @@
 namespace vc::game {
 
 game_instance::game_instance() {
+	load_models();
 	construct_pipeline();
 	construct_command_buffers();
 }
@@ -82,13 +83,27 @@ void game_instance::construct_command_buffers() {
 		vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
 		m_pipeline->bind(command_buffer);
-		vkCmdDraw(command_buffer, 3, 1, 0, 0);
+		m_model->bind(command_buffer);
+		m_model->draw(command_buffer);
 
 		vkCmdEndRenderPass(command_buffer);
 		if (VK_SUCCESS != vkEndCommandBuffer(command_buffer)) {
 			throw game_instance_error{ fmt::format("Failed to end command buffer #{}.", i) };
 		}
 	}
+}
+
+void game_instance::load_models() {
+	using namespace engine;
+	using vertex = resources::model::vertex;
+
+	constexpr std::array vertices{
+		vertex{ .position = glm::vec3{  0.0f, -0.5f, 0.0f } },
+		vertex{ .position = glm::vec3{  0.5f,  0.5f, 0.0f } },
+		vertex{ .position = glm::vec3{ -0.5f,  0.5f, 0.0f } }
+	};
+
+	m_model = std::make_unique<resources::model>(m_device, vertices);
 }
 
 } // namespace vc::game

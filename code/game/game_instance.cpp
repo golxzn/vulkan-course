@@ -97,10 +97,12 @@ void game_instance::load_models() {
 	using namespace engine;
 	using vertex = resources::model::vertex;
 
+	constexpr glm::vec4 vertices_color{ 1.0f, 0.62f, 0.23f, 1.0f };
+
 	constexpr std::array vertices{
-		vertex{ .position = glm::vec3{  0.0f, -0.5f, 0.0f } },
-		vertex{ .position = glm::vec3{  0.5f,  0.5f, 0.0f } },
-		vertex{ .position = glm::vec3{ -0.5f,  0.5f, 0.0f } }
+		vertex{ .position = {  0.0f, -0.5f, 0.0f }, .color = vertices_color },
+		vertex{ .position = {  0.5f,  0.5f, 0.0f }, .color = vertices_color },
+		vertex{ .position = { -0.5f,  0.5f, 0.0f }, .color = vertices_color }
 	};
 
 	m_model = std::make_unique<resources::model>(m_device, vertices);

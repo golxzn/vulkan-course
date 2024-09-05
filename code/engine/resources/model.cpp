@@ -53,7 +53,8 @@ void model::construct_vertex_buffers(const std::span<const vertex> vertices) {
 #pragma region vertex
 
 
-description_array<VkVertexInputBindingDescription> model::vertex::binding_description() {
+auto model::vertex::binding_description()
+	-> std::array<VkVertexInputBindingDescription, constants::bindings_count> {
 	return {
 		VkVertexInputBindingDescription{
 			.binding   = 0,
@@ -63,13 +64,20 @@ description_array<VkVertexInputBindingDescription> model::vertex::binding_descri
 	};
 }
 
-description_array<VkVertexInputAttributeDescription> model::vertex::attribute_description() {
+auto model::vertex::attribute_description()
+	-> std::array<VkVertexInputAttributeDescription, constants::vertex_elements> {
 	return {
 		VkVertexInputAttributeDescription{
 			.location = 0,
 			.binding  = 0,
 			.format   = VK_FORMAT_R32G32B32_SFLOAT,
 			.offset   = 0
+		},
+		VkVertexInputAttributeDescription{
+			.location = 1,
+			.binding  = 0,
+			.format   = VK_FORMAT_R32G32B32A32_SFLOAT,
+			.offset   = sizeof(glm::vec3)
 		}
 	};
 }

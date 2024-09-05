@@ -2,6 +2,7 @@
 
 #include <span>
 #include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 
 #include "engine/graphics/device.hpp"
 
@@ -9,7 +10,8 @@ namespace vc::engine::resources {
 
 namespace constants {
 
-constexpr size_t vertex_elements{ 1 };
+constexpr size_t bindings_count { 1 };
+constexpr size_t vertex_elements{ 2 };
 
 } // namespace constants
 
@@ -36,18 +38,16 @@ private:
 	void construct_vertex_buffers(const std::span<const vertex> vertices);
 };
 
-template<class T>
-using description_array = std::array<T, constants::vertex_elements>;
-
 struct model::vertex {
 	glm::vec3 position;
+	glm::vec4 color;
 
 
 	[[nodiscard]] static auto binding_description()
-		-> description_array<VkVertexInputBindingDescription>;
+		-> std::array<VkVertexInputBindingDescription, constants::bindings_count>;
 
 	[[nodiscard]] static auto attribute_description()
-		-> description_array<VkVertexInputAttributeDescription>;
+		-> std::array<VkVertexInputAttributeDescription, constants::vertex_elements>;
 };
 
 } // namespace vc::engine::resources

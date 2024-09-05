@@ -71,7 +71,7 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 	};
 	const VkGraphicsPipelineCreateInfo pipeline_info{
 		.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
-		.stageCount          = static_cast<uint32_t>(std::size(stages)),
+		.stageCount          = static_cast<u32>(std::size(stages)),
 		.pStages             = std::data(stages),
 		.pVertexInputState   = &vertex_input_create_info,
 		.pInputAssemblyState = &config.input_assembly_create_info,
@@ -146,8 +146,8 @@ size_t pipeline::load_shaders(const std::string_view shader) {
 VkShaderModule pipeline::make_shader(const std::string_view filename, const std::vector<char> &code) {
 	const VkShaderModuleCreateInfo create_info{
 		.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-		.codeSize = static_cast<uint32_t>(std::size(code)),
-		.pCode    = reinterpret_cast<const uint32_t *>(std::data(code))
+		.codeSize = static_cast<u32>(std::size(code)),
+		.pCode    = reinterpret_cast<const u32 *>(std::data(code))
 	};
 
 	VkShaderModule shader;
@@ -179,9 +179,9 @@ pipeline_layout::pipeline_layout(device &dev,
 ) : m_device{ dev } {
 	const VkPipelineLayoutCreateInfo layout_info{
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
-		.setLayoutCount         = static_cast<uint32_t>(std::size(set_layouts)),
+		.setLayoutCount         = static_cast<u32>(std::size(set_layouts)),
 		.pSetLayouts            = std::data(set_layouts),
-		.pushConstantRangeCount = static_cast<uint32_t>(std::size(constant_ranges)),
+		.pushConstantRangeCount = static_cast<u32>(std::size(constant_ranges)),
 		.pPushConstantRanges    = std::data(constant_ranges)
 	};
 

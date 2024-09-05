@@ -37,11 +37,20 @@ swap_chain_support_details device::query_swap_chain_support() {
 	return query_swap_chain_support(m_physical_device);
 }
 
-uint32_t device::find_memory_type(const uint32_t filter, const VkMemoryPropertyFlags properties) {
+u32 device::find_memory_type(const u32 filter, const VkMemoryPropertyFlags properties) {
 	VkPhysicalDeviceMemoryProperties memory_properties;
 	vkGetPhysicalDeviceMemoryProperties(m_physical_device, &memory_properties);
-	for (uint32_t i{}; i < memory_properties.memoryTypeCount; ++i) {
-		if ((filter & (1 << i)) && ((memory_properties.memoryTypes[i].propertyFlags & properties) == properties)) {
+
+	static constexpr auto match{ [](const auto id, const auto filter) {
+		return static_cast<b8>(filter & (1 << id));
+	} };
+	static constexpr auto has_property{ [](const auto &memory_properties,
+		const auto id, const auto properties) {
+		return (memory_properties.memoryTypes[id].propertyFlags & properties) == properties;
+	} };
+
+	for (u32 i{}; i < memory_properties.memoryTypeCount; ++i) {
+		if (match(i, filter) && has_property(memory_properties, i, properties)) {
 			return i;
 		}
 	}
@@ -56,7 +65,9 @@ queue_family_indices device::find_queue_families() {
 	return find_queue_families(m_physical_device);
 }
 
-VkFormat device::find_supported_format(const std::vector<VkFormat> &candidates, VkImageTiling tiling, VkFormatFeatureFlags features) {
+VkFormat device::find_supported_format(const std::vector<VkFormat> &candidates,
+	VkImageTiling tiling, VkFormatFeatureFlags features
+) {
 	VkFormatProperties props;
 	const VkFormatFeatureFlags *selected_features{ nullptr };
 	switch (tiling) {
@@ -160,7 +171,7 @@ void device::copy_buffer(VkBuffer source, VkBuffer destination, VkDeviceSize siz
 	end_single_time_commands(command_buffer);
 }
 
-void device::copy_buffer_to_image(VkBuffer source, VkImage image, glm::u32vec2 size, uint32_t layers) {
+void device::copy_buffer_to_image(VkBuffer source, VkImage image, glm::u32vec2 size, u32 layers) {
 	auto command_buffer{ begin_single_time_commands() };
 
 	const VkBufferImageCopy region{
@@ -218,7 +229,7 @@ void device::construct_surface(core::window &window) {
 }
 
 void device::select_physical_device() {
-	uint32_t device_count{};
+	u32 device_count{};
 	vkEnumeratePhysicalDevices(m_instance.handle(), &device_count, nullptr);
 	if (device_count == 0) {
 		throw device_error{ "Failed to find Vulkan-supported GPUs" };
@@ -252,7 +263,7 @@ void device::construct_logical_device() {
 		throw device_error{ "Could not find graphics and present queue families." };
 	}
 
-	float priority{ 1.0f };
+	f32 priority{ 1.0f };
 	const std::vector<VkDeviceQueueCreateInfo> queue_create_infos{
 		make_queue_info(indices.graphics_family.value_or(0), &priority),
 		make_queue_info(indices.present_family.value_or(0), &priority)
@@ -264,9 +275,9 @@ void device::construct_logical_device() {
 
 	const VkDeviceCreateInfo create_info{
 		.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-		.queueCreateInfoCount    = static_cast<uint32_t>(std::size(queue_create_infos)),
+		.queueCreateInfoCount    = static_cast<u32>(std::size(queue_create_infos)),
 		.pQueueCreateInfos       = std::data(queue_create_infos),
-		.enabledExtensionCount   = static_cast<uint32_t>(std::size(constants::device_extensions)),
+		.enabledExtensionCount   = static_cast<u32>(std::size(constants::device_extensions)),
 		.ppEnabledExtensionNames = std::data(constants::device_extensions),
 		.pEnabledFeatures        = &features
 	};
@@ -310,7 +321,7 @@ bool device::is_suitable(VkPhysicalDevice device) {
 }
 
 bool device::check_device_extension_support(VkPhysicalDevice device) {
-	uint32_t extensions_count{};
+	u32 extensions_count{};
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensions_count, nullptr);
 
 	std::vector<VkExtensionProperties> properties(extensions_count);
@@ -326,7 +337,7 @@ bool device::check_device_extension_support(VkPhysicalDevice device) {
 }
 
 queue_family_indices device::find_queue_families(VkPhysicalDevice device) {
-	uint32_t queue_family_count{};
+	u32 queue_family_count{};
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
 
 	std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
@@ -334,7 +345,7 @@ queue_family_indices device::find_queue_families(VkPhysicalDevice device) {
 		std::data(queue_families));
 
 	queue_family_indices indices;
-	for (uint32_t family_id{}; family_id < queue_family_count && !indices.is_complete(); ++family_id) {
+	for (u32 family_id{}; family_id < queue_family_count && !indices.is_complete(); ++family_id) {
 		const auto &family{ queue_families[family_id] };
 		if (family.queueCount == 0) continue;
 
@@ -355,7 +366,7 @@ swap_chain_support_details device::query_swap_chain_support(VkPhysicalDevice dev
 	swap_chain_support_details details;
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
 
-	uint32_t format_count;
+	u32 format_count;
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &format_count, nullptr);
 	if (format_count != 0) {
 		details.formats.resize(format_count);
@@ -363,7 +374,7 @@ swap_chain_support_details device::query_swap_chain_support(VkPhysicalDevice dev
 			std::data(details.formats));
 	}
 
-	uint32_t present_mode_count;
+	u32 present_mode_count;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &present_mode_count, nullptr);
 	if (present_mode_count != 0) {
 		details.present_modes.resize(present_mode_count);

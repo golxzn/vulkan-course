@@ -28,8 +28,8 @@ struct swap_chain_support_details {
 };
 
 struct queue_family_indices {
-	std::optional<uint32_t> graphics_family;
-	std::optional<uint32_t> present_family;
+	std::optional<u32> graphics_family;
+	std::optional<u32> present_family;
 
 	[[nodiscard]] bool is_complete() const noexcept;
 };
@@ -52,7 +52,7 @@ public:
 	[[nodiscard]] decltype(auto) present_queue() noexcept { return m_present_queue; }
 
 	[[nodiscard]] auto query_swap_chain_support() -> swap_chain_support_details;
-	[[nodiscard]] auto find_memory_type(uint32_t filter, VkMemoryPropertyFlags properties) -> uint32_t;
+	[[nodiscard]] auto find_memory_type(u32 filter, VkMemoryPropertyFlags properties) -> u32;
 	[[nodiscard]] auto find_queue_families() -> queue_family_indices;
 	[[nodiscard]] auto find_supported_format(const std::vector<VkFormat> &candidates,
 		VkImageTiling tiling, VkFormatFeatureFlags features) -> VkFormat;
@@ -64,7 +64,7 @@ public:
 	void end_single_time_commands(VkCommandBuffer command_buffer);
 
 	void copy_buffer(VkBuffer source, VkBuffer destination, VkDeviceSize size);
-	void copy_buffer_to_image(VkBuffer source, VkImage image, glm::u32vec2 size, uint32_t layers);
+	void copy_buffer_to_image(VkBuffer source, VkImage image, glm::u32vec2 size, u32 layers);
 
 	void wait_for_idle() const noexcept;
 

@@ -8,15 +8,17 @@
 
 #include <vulkan/vulkan.h>
 
+#include "core/types.hpp"
+
 namespace vc::engine::graphics {
 
 class device;
 
 namespace constants {
 
-constexpr int32_t  max_frames_in_flight{ 2 };
-constexpr uint64_t fence_wait_timeout  { std::numeric_limits<uint64_t>::max() };
-constexpr uint64_t acquire_next_timeout{ std::numeric_limits<uint64_t>::max() };
+constexpr i32  max_frames_in_flight{ 2 };
+constexpr u64 fence_wait_timeout  { std::numeric_limits<u64>::max() };
+constexpr u64 acquire_next_timeout{ std::numeric_limits<u64>::max() };
 
 } // namespace constants
 
@@ -38,12 +40,12 @@ public:
 	[[nodiscard]] auto image_format() const noexcept { return m_image_format; }
 	[[nodiscard]] auto extent() const noexcept { return m_extent; }
 
-	[[nodiscard]] auto aspect_ratio() const noexcept -> float;
+	[[nodiscard]] auto aspect_ratio() const noexcept -> f32;
 	[[nodiscard]] auto find_depth_format() const -> VkFormat;
 
-	[[nodiscard]] auto acquire_next_image() -> std::optional<uint32_t>;
-	[[nodiscard]] auto submit(uint32_t image_index, const VkCommandBuffer *buffers,
-		uint32_t buffers_count = 1) -> VkResult;
+	[[nodiscard]] auto acquire_next_image() -> std::optional<u32>;
+	[[nodiscard]] auto submit(u32 image_index, const VkCommandBuffer *buffers,
+		u32 buffers_count = 1) -> VkResult;
 
 private:
 	device                      &m_device;

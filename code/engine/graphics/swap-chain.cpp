@@ -45,8 +45,8 @@ swap_chain::~swap_chain() {
 	}
 }
 
-float swap_chain::aspect_ratio() const noexcept {
-	return static_cast<float>(m_extent.width) / static_cast<float>(m_extent.height);
+f32 swap_chain::aspect_ratio() const noexcept {
+	return static_cast<f32>(m_extent.width) / static_cast<f32>(m_extent.height);
 }
 
 VkFormat swap_chain::find_depth_format() const {
@@ -57,11 +57,11 @@ VkFormat swap_chain::find_depth_format() const {
 	);
 }
 
-std::optional<uint32_t> swap_chain::acquire_next_image() {
+std::optional<u32> swap_chain::acquire_next_image() {
 	vkWaitForFences(m_device.handle(), 1, &m_in_flight_fences[m_current_frame],
 		VK_TRUE, constants::fence_wait_timeout);
 
-	uint32_t image_index;
+	u32 image_index;
 	const auto result{ vkAcquireNextImageKHR(
 		m_device.handle(),
 		m_swap_chain,
@@ -73,7 +73,7 @@ std::optional<uint32_t> swap_chain::acquire_next_image() {
 	return VK_SUCCESS == result ? std::make_optional(image_index) : std::nullopt;
 }
 
-VkResult swap_chain::submit(uint32_t image_index, const VkCommandBuffer *buffers, uint32_t buffers_count) {
+VkResult swap_chain::submit(u32 image_index, const VkCommandBuffer *buffers, u32 buffers_count) {
 	if (auto current_image_fence{ m_images_in_flight[image_index] }; current_image_fence != VK_NULL_HANDLE) {
 		vkWaitForFences(m_device.handle(), 1, &current_image_fence, VK_TRUE, constants::fence_wait_timeout);
 	}
@@ -120,8 +120,8 @@ VkResult swap_chain::submit(uint32_t image_index, const VkCommandBuffer *buffers
 
 void swap_chain::construct_swap_chain() {
 	const auto support{ m_device.query_swap_chain_support() };
-	const uint32_t image_count{ [] (const auto &capabilities) {
-		const uint32_t count{ capabilities.minImageCount + 1 };
+	const u32 image_count{ [] (const auto &capabilities) {
+		const u32 count{ capabilities.minImageCount + 1 };
 		if (capabilities.maxImageCount > 0 && count > capabilities.maxImageCount) {
 			return capabilities.maxImageCount;
 		}
@@ -130,8 +130,8 @@ void swap_chain::construct_swap_chain() {
 
 	auto [graphics_family, present_family]{ m_device.find_queue_families() };
 	// TODO: Check optional families. It actually matters
-	constexpr uint32_t queue_family_indices_count{ 2 };
-	const std::array<uint32_t, queue_family_indices_count> queue_family_indices{
+	constexpr u32 queue_family_indices_count{ 2 };
+	const std::array<u32, queue_family_indices_count> queue_family_indices{
 		graphics_family.value_or(0),
 		present_family.value_or(0)
 	};
@@ -161,7 +161,7 @@ void swap_chain::construct_swap_chain() {
 		throw swap_chain_error{ "Failed to create swap chain." };
 	}
 
-	uint32_t total_images_count{};
+	u32 total_images_count{};
 	vkGetSwapchainImagesKHR(m_device.handle(), m_swap_chain, &total_images_count, nullptr);
 	m_images.resize(total_images_count);
 	vkGetSwapchainImagesKHR(m_device.handle(), m_swap_chain, &total_images_count, std::data(m_images));
@@ -249,7 +249,7 @@ void swap_chain::construct_render_pass() {
 
 	const VkRenderPassCreateInfo render_pass_info{
 		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-		.attachmentCount = static_cast<uint32_t>(std::size(attachments)),
+		.attachmentCount = static_cast<u32>(std::size(attachments)),
 		.pAttachments    = std::data(attachments),
 		.subpassCount    = 1,
 		.pSubpasses      = &sub_pass,
@@ -314,7 +314,7 @@ void swap_chain::construct_framebuffers() {
 		const VkFramebufferCreateInfo create_info{
 			.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
 			.renderPass      = m_render_pass,
-			.attachmentCount = static_cast<uint32_t>(std::size(attachments)),
+			.attachmentCount = static_cast<u32>(std::size(attachments)),
 			.pAttachments    = std::data(attachments),
 			.width           = m_extent.width,
 			.height          = m_extent.height,
@@ -377,7 +377,7 @@ VkPresentModeKHR swap_chain::select_present_mode(const std::vector<VkPresentMode
 }
 
 VkExtent2D swap_chain::select_extent(const VkSurfaceCapabilitiesKHR &caps) {
-	if (caps.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
+	if (caps.currentExtent.width != std::numeric_limits<u32>::max()) {
 		return caps.currentExtent;
 	}
 

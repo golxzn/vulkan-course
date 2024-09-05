@@ -4,6 +4,7 @@
 #include <string_view>
 #include <glm/vec2.hpp>
 
+#include "core/types.hpp"
 #include "core/glfw-header.hpp"
 
 namespace vc::engine::graphics { class vulkan_instance; }

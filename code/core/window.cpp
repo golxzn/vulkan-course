@@ -39,12 +39,12 @@ VkSurfaceKHR window::make_surface(const engine::graphics::vulkan_instance &insta
 }
 
 VkExtent2D window::extent() const noexcept {
-	int32_t width;
-	int32_t height;
+	i32 width;
+	i32 height;
 	glfwGetWindowSize(m_window.get(), &width, &height);
 	return VkExtent2D{
-		.width  = static_cast<uint32_t>(width),
-		.height = static_cast<uint32_t>(height),
+		.width  = static_cast<u32>(width),
+		.height = static_cast<u32>(height),
 	};
 }
 

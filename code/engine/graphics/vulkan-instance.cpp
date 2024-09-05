@@ -5,6 +5,7 @@
 
 #include "engine/graphics/vulkan-instance.hpp"
 
+#include "core/types.hpp"
 #include "core/glfw-header.hpp"
 
 namespace vc::engine::graphics {
@@ -111,7 +112,7 @@ void vulkan_instance::construct_debug_messenger() {
 }
 
 bool vulkan_instance::check_validation_layer_support() const {
-	uint32_t layers_count{};
+	u32 layers_count{};
 	vkEnumerateInstanceLayerProperties(&layers_count, nullptr);
 
 	std::vector<VkLayerProperties> properties(layers_count);
@@ -157,12 +158,12 @@ void vulkan_instance::construct_instance() {
 #if defined(VC_DEBUG)
 		.pNext                   = &debug_create_info,
 		.pApplicationInfo        = &application_info,
-		.enabledLayerCount       = static_cast<uint32_t>(std::size(constants::validation_layers)),
+		.enabledLayerCount       = static_cast<u32>(std::size(constants::validation_layers)),
 		.ppEnabledLayerNames     = std::data(constants::validation_layers),
 #else
 		.pApplicationInfo        = &application_info,
 #endif // defined(VC_DEBUG)
-		.enabledExtensionCount   = static_cast<uint32_t>(std::size(extensions)),
+		.enabledExtensionCount   = static_cast<u32>(std::size(extensions)),
 		.ppEnabledExtensionNames = std::data(extensions)
 	};
 
@@ -174,7 +175,7 @@ void vulkan_instance::construct_instance() {
 }
 
 std::vector<const char *> vulkan_instance::required_extensions() const {
-	uint32_t glfw_extensions_count{};
+	u32 glfw_extensions_count{};
 	const char **glfw_extensions{ glfwGetRequiredInstanceExtensions(&glfw_extensions_count) };
 
 #if defined(VC_DEBUG)
@@ -188,7 +189,7 @@ std::vector<const char *> vulkan_instance::required_extensions() const {
 }
 
 void vulkan_instance::has_glfw_required_instance_extensions() const {
-	uint32_t extensions_count{};
+	u32 extensions_count{};
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensions_count, nullptr);
 
 	std::vector<VkExtensionProperties> extensions(extensions_count);

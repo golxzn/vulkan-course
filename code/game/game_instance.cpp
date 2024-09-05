@@ -34,8 +34,8 @@ void game_instance::construct_pipeline() {
 	const auto extent{ m_swap_chain.extent() };
 	m_pipeline.emplace(m_device, constants::default_shader, engine::graphics::pipeline_config{
 		.viewport = {
-			.width  = static_cast<float>(extent.width),
-			.height = static_cast<float>(extent.height),
+			.width  = static_cast<f32>(extent.width),
+			.height = static_cast<f32>(extent.height),
 		},
 		.scissor     = { .extent = extent },
 		.layout      = static_cast<VkPipelineLayout>(m_pipeline_layout),
@@ -50,7 +50,7 @@ void game_instance::construct_command_buffers() {
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		.commandPool        = m_device.command_pool(),
 		.level              = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
-		.commandBufferCount = static_cast<uint32_t>(std::size(m_command_buffers))
+		.commandBufferCount = static_cast<u32>(std::size(m_command_buffers))
 	};
 
 	if (VK_SUCCESS != vkAllocateCommandBuffers(m_device.handle(), &allocate_info, std::data(m_command_buffers))) {
@@ -76,7 +76,7 @@ void game_instance::construct_command_buffers() {
 				.offset = { 0, 0 },
 				.extent = m_swap_chain.extent()
 			},
-			.clearValueCount = static_cast<uint32_t>(std::size(constants::clear_values)),
+			.clearValueCount = static_cast<u32>(std::size(constants::clear_values)),
 			.pClearValues    = std::data(constants::clear_values)
 		};
 		vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);

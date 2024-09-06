@@ -58,14 +58,6 @@ struct pipeline_config {
 			| VK_COLOR_COMPONENT_B_BIT
 			| VK_COLOR_COMPONENT_A_BIT
 	};
-	VkPipelineColorBlendStateCreateInfo color_blend_create_info{
-		.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
-		.logicOpEnable   = VK_FALSE,
-		.logicOp         = VK_LOGIC_OP_COPY,
-		.attachmentCount = 1,
-		.pAttachments    = &color_attachment_state,
-		.blendConstants  = { 0.0f, 0.0f, 0.0f, 0.0f }
-	};
 	VkPipelineDepthStencilStateCreateInfo depth_stencil_create_info{
 		.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO,
 		.depthTestEnable       = VK_TRUE,

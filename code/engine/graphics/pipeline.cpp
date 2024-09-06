@@ -72,6 +72,15 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 		.scissorCount  = 1,
 		.pScissors     = &config.scissor
 	};
+	const VkPipelineColorBlendStateCreateInfo color_blend_create_info{
+		.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO,
+		.logicOpEnable   = VK_FALSE,
+		.logicOp         = VK_LOGIC_OP_COPY,
+		.attachmentCount = 1,
+		.pAttachments    = &config.color_attachment_state,
+		.blendConstants  = { 0.0f, 0.0f, 0.0f, 0.0f }
+	};
+
 	const VkGraphicsPipelineCreateInfo pipeline_info{
 		.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
 		.stageCount          = static_cast<u32>(std::size(stages)),
@@ -83,7 +92,7 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 		.pRasterizationState = &config.rasterization_create_info,
 		.pMultisampleState   = &config.multi_sample_create_info,
 		.pDepthStencilState  = &config.depth_stencil_create_info,
-		.pColorBlendState    = &config.color_blend_create_info,
+		.pColorBlendState    = &color_blend_create_info,
 		.pDynamicState       = nullptr,
 		.layout              = config.layout,
 		.renderPass          = config.render_pass,

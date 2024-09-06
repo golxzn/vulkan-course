@@ -7,6 +7,7 @@
 
 #include "core/types.hpp"
 #include "core/glfw-header.hpp"
+#include "core/info/project.hpp"
 
 namespace vc::engine::graphics {
 
@@ -145,8 +146,8 @@ void vulkan_instance::construct_instance() {
 
 	const VkApplicationInfo application_info{
 		.sType              = VK_STRUCTURE_TYPE_APPLICATION_INFO,
-		.pApplicationName   = "vulkan-course-application",
-		.applicationVersion = VK_MAKE_VERSION(1, 0, 0),
+		.pApplicationName   = std::data(core::info::application::name),
+		.applicationVersion = core::info::application::version::bits,
 		.pEngineName        = "vulkan-course-engine",
 		.engineVersion      = VK_MAKE_VERSION(1, 0, 0),
 		.apiVersion         = VK_API_VERSION_1_0

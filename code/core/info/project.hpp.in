@@ -1,0 +1,26 @@
+#pragma once
+
+#include <string_view>
+#include "core/types.hpp"
+
+namespace vc::core::info {
+
+namespace application {
+
+namespace version {
+
+constexpr u32 major{ @PROJECT_VERSION_MAJOR@ };
+constexpr u32 minor{ @PROJECT_VERSION_MINOR@ };
+constexpr u32 patch{ @PROJECT_VERSION_PATCH@ };
+constexpr u32 bits { (major << 22) | (minor << 12) | (patch << 0) };
+
+constexpr std::string_view name{ "@PROJECT_VERSION@" };
+
+} // namespace version
+
+constexpr std::string_view name        { "@APPLICATION_NAME@" };
+constexpr std::string_view name_version{ "@APPLICATION_NAME@ | v@PROJECT_VERSION@" };
+
+} // namespace application
+
+} // namespace vc::core::info

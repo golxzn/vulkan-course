@@ -28,3 +28,9 @@ add_compile_definitions(
 	VC_${vc_upper_platform}
 	VC_$<UPPER_CASE:$<CONFIG>>
 )
+
+set(project_info_file ${vc_code_dir}/core/info/project.hpp)
+
+set(APPLICATION_NAME "Vulkan Corpse")
+
+configure_file(${project_info_file}.in ${project_info_file} @ONLY NEWLINE_STYLE UNIX)

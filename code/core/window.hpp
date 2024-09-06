@@ -6,6 +6,7 @@
 
 #include "core/types.hpp"
 #include "core/glfw-header.hpp"
+#include "core/info/project.hpp"
 
 namespace vc::engine::graphics { class vulkan_instance; }
 
@@ -13,7 +14,7 @@ namespace vc::core {
 
 class window {
 public:
-	explicit window(glm::i32vec2 size, std::string_view title);
+	explicit window(glm::i32vec2 size, std::string_view title = info::application::name_version);
 	~window();
 
 	window(const window &other) = delete;

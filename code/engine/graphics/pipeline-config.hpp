@@ -80,7 +80,7 @@ struct pipeline_config {
 	};
 	VkPipelineLayout layout     { VK_NULL_HANDLE };
 	VkRenderPass     render_pass{ VK_NULL_HANDLE };
-	u32              sub_pass   { 0_u32 };
+	u32              sub_pass   { 0 };
 };
 
 

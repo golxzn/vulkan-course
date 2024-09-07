@@ -358,8 +358,8 @@ void swap_chain::construct_sync_objects() {
 
 VkSurfaceFormatKHR swap_chain::select_surface_format(const std::vector<VkSurfaceFormatKHR> &available) {
 	static constexpr auto required_format_and_color_space{ [] (const auto &surface) {
-		return (surface.format     == VK_FORMAT_B8G8R8A8_SRGB)
-		&&     (surface.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR);
+		return (surface.format     == constants::surface_format)
+		&&     (surface.colorSpace == constants::color_space);
 	} };
 	namespace stdr = std::ranges;
 	if (auto found{ stdr::find_if(available, required_format_and_color_space) }; found != std::end(available)) {

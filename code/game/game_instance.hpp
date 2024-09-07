@@ -15,7 +15,7 @@ namespace constants {
 constexpr glm::i32vec2     window_size   { 1024, 720       };
 constexpr std::string_view default_shader{ "assets/shaders/primitive/primitive" };
 constexpr std::array<VkClearValue, 2> clear_values{
-	VkClearValue{ .color = { 0.05f, 0.05f, 0.06f, 1.0f } },
+	VkClearValue{ .color = { 0.12f, 0.12f, 0.16f, 1.0f } },
 	VkClearValue{ .depthStencil = { 1.0f, 0 } }
 };
 

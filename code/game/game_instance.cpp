@@ -100,9 +100,9 @@ void game_instance::load_models() {
 	using vertex = resources::model::vertex;
 
 	constexpr std::array vertices{
-		vertex{ .position = {  0.0f, -0.9f, 0.0f }, .color = { 1.0f, 0.0f, 0.0f, 1.0f } },
-		vertex{ .position = {  0.9f,  0.9f, 0.0f }, .color = { 0.0f, 0.0f, 1.0f, 1.0f } },
-		vertex{ .position = { -0.9f,  0.9f, 0.0f }, .color = { 0.0f, 0.0f, 1.0f, 1.0f } }
+		vertex{ .position = {  0.0f, -0.9f, 0.0f }, .color = { 1.0f, 0.62f, 0.23f, 1.0f } },
+		vertex{ .position = {  0.9f,  0.9f, 0.0f }, .color = { 0.5f, 0.31f, 0.61f, 1.0f } },
+		vertex{ .position = { -0.9f,  0.9f, 0.0f }, .color = { 0.5f, 0.31f, 0.61f, 1.0f } }
 	};
 
 	m_model = std::make_unique<resources::model>(m_device, toys::make_serpinsky(6, vertices));

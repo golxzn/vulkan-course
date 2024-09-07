@@ -20,6 +20,10 @@ constexpr i32 max_frames_in_flight{ 2 };
 constexpr u64 fence_wait_timeout  { std::numeric_limits<u64>::max() };
 constexpr u64 acquire_next_timeout{ std::numeric_limits<u64>::max() };
 
+// Use VK_FORMAT_B8G8R8A8_SRGB for gamma correction
+constexpr VkFormat surface_format    { VK_FORMAT_B8G8R8A8_UNORM };
+constexpr VkColorSpaceKHR color_space{ VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+
 } // namespace constants
 
 template<class T>

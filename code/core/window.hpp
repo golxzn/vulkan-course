@@ -25,6 +25,7 @@ public:
 	void pull_events();
 
 	[[nodiscard]] bool is_closing() const noexcept;
+	[[nodiscard]] bool key_pressed(const int32_t key) const noexcept;
 	[[nodiscard]] auto make_surface(const engine::graphics::vulkan_instance &instance) noexcept -> VkSurfaceKHR;
 	[[nodiscard]] auto extent() const noexcept -> VkExtent2D;
 

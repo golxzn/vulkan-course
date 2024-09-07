@@ -2,7 +2,7 @@
 
 # Vulkan Corpse
 
-<img src="https://img.shields.io/badge/version-0.1.0-orange" />
+<img src="https://img.shields.io/badge/version-0.1.1-orange" />
 <img src="https://img.shields.io/badge/nothing%20special,%20just%20learning%20process-orange" />
 
 </div>
@@ -10,7 +10,7 @@
 ## Current progress
 
 <div align="center">
-	<img width=512 src="docs/screenshots/preview-latest.png" />
+	<img width=512 src="docs/screenshots/preview-latest.gif" />
 </div>
 
 ## What is that?

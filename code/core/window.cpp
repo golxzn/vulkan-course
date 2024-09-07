@@ -29,6 +29,10 @@ bool window::is_closing() const noexcept {
 	return glfwWindowShouldClose(m_window.get());
 }
 
+bool window::key_pressed(const int32_t key) const noexcept {
+	return glfwGetKey(m_window.get(), key) == GLFW_PRESS;
+}
+
 VkSurfaceKHR window::make_surface(const engine::graphics::vulkan_instance &instance) noexcept {
 	if (VkSurfaceKHR surface;
 		glfwCreateWindowSurface(instance.handle(), m_window.get(), nullptr, &surface) == VK_SUCCESS) {

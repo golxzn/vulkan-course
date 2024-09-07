@@ -69,7 +69,6 @@ private:
 	};
 	VkPipeline m_pipeline{ VK_NULL_HANDLE };
 
-	void construct_pipeline();
 	auto load_shaders(const std::string_view shader) -> size_t;
 	auto make_shader(const std::string_view filename, const std::vector<char> &code)
 		-> VkShaderModule;

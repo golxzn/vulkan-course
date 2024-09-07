@@ -1,5 +1,7 @@
 #pragma once
 
+#include <glm/mat4x4.hpp>
+
 #include "core/window.hpp"
 #include "engine/graphics/device.hpp"
 #include "engine/graphics/pipeline.hpp"
@@ -36,15 +38,20 @@ private:
 	engine::graphics::vulkan_instance         m_instance       {};
 	engine::graphics::device                  m_device         { m_instance, m_window };
 	engine::graphics::swap_chain              m_swap_chain     { m_device, m_window.extent() };
-	engine::graphics::pipeline_layout         m_pipeline_layout{ m_device };
+	std::optional<engine::graphics::pipeline_layout> m_pipeline_layout;
 	std::optional<engine::graphics::pipeline> m_pipeline;
 	std::vector<VkCommandBuffer>              m_command_buffers;
 	std::unique_ptr<engine::resources::model> m_model;
 
+	glm::mat4 test_model_transform{ 1.0f };
+
+	void update(double delta);
 	void render_frame();
 
 	void construct_pipeline();
 	void construct_command_buffers();
+
+	void record_command_buffer(size_t image_index);
 
 	void load_models();
 };

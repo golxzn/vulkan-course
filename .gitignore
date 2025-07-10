@@ -3,6 +3,9 @@ build/
 bin/
 .vscode
 .config
+.cache
 ./*.ini
 *.spv
 *.bkp
+compile_commands.json
+CMakeUserPresets.json

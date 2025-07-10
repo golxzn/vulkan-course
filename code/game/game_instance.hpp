@@ -38,10 +38,10 @@ private:
 	engine::graphics::vulkan_instance         m_instance       {};
 	engine::graphics::device                  m_device         { m_instance, m_window };
 	engine::graphics::swap_chain              m_swap_chain     { m_device, m_window.extent() };
-	std::optional<engine::graphics::pipeline_layout> m_pipeline_layout;
-	std::optional<engine::graphics::pipeline> m_pipeline;
-	std::vector<VkCommandBuffer>              m_command_buffers;
-	std::unique_ptr<engine::resources::model> m_model;
+	std::optional<engine::graphics::pipeline_layout> m_pipeline_layout{};
+	std::optional<engine::graphics::pipeline> m_pipeline{};
+	std::vector<VkCommandBuffer>              m_command_buffers{};
+	std::unique_ptr<engine::resources::model> m_model{};
 
 	glm::mat4 test_model_transform{ 1.0f };
 

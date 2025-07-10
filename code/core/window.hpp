@@ -1,12 +1,12 @@
 #pragma once
 
-#include <optional>
 #include <string_view>
 #include <glm/vec2.hpp>
 
 #include "core/types.hpp"
 #include "core/glfw-header.hpp"
-#include "core/info/project.hpp"
+
+#include "gen/core/info/project.hpp"
 
 namespace vc::engine::graphics { class vulkan_instance; }
 
@@ -25,7 +25,7 @@ public:
 	void pull_events();
 
 	[[nodiscard]] bool is_closing() const noexcept;
-	[[nodiscard]] bool key_pressed(const int32_t key) const noexcept;
+	[[nodiscard]] bool key_pressed(const i32 key) const noexcept;
 	[[nodiscard]] auto make_surface(const engine::graphics::vulkan_instance &instance) noexcept -> VkSurfaceKHR;
 	[[nodiscard]] auto extent() const noexcept -> VkExtent2D;
 

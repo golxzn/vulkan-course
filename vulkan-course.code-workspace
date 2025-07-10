@@ -37,6 +37,8 @@
 		"compounds": []
 	},
 	"settings": {
+		"cmake.useCMakePresets": "always",
+
 		"cSpell.words": [
 			"directx"
 		]

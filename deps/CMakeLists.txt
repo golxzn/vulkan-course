@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.25)
 
 set(BUILD_SHARED_LIBS OFF)
 
@@ -13,7 +12,7 @@ endmacro()
 #============================ Vulkan ============================#
 
 find_package(Vulkan REQUIRED)
-list(APPEND libraries Vulkan::Vulkan)
+list(APPEND libraries Vulkan::Vulkan Vulkan::Headers)
 
 #============================= glfw =============================#
 

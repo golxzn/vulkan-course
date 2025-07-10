@@ -8,7 +8,7 @@
 
 #include "core/types.hpp"
 #include "core/glfw-header.hpp"
-#include "core/info/project.hpp"
+#include "gen/core/info/project.hpp"
 
 namespace vc::engine::graphics {
 

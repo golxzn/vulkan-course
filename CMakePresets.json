@@ -1,0 +1,62 @@
+{
+	"version": 7,
+	"cmakeMinimumRequired": {
+		"major": 3,
+		"minor": 30,
+		"patch": 0
+	},
+	"configurePresets": [
+		{
+			"name": "common",
+			"hidden": true,
+			"binaryDir": "build/${presetName}",
+			"cacheVariables": {
+				"CMAKE_EXPORT_COMPILE_COMMANDS": true
+			}
+		},
+
+		{
+			"name": "ninja",
+			"hidden": true,
+			"generator": "Ninja",
+			"architecture": {
+				"value": "x64",
+				"strategy": "external"
+			}
+		},
+
+		{
+			"name": "clang",
+			"hidden": true,
+			"cacheVariables": {
+				"CMAKE_C_COMPILER": "clang",
+				"CMAKE_CXX_COMPILER": "clang++"
+			}
+		},
+
+
+		{
+			"name": "ninja-clang-x64-dev",
+			"inherits": [ "common", "ninja", "clang" ],
+			"displayName": "[Ninja][Clang] x64 development"
+		}
+	],
+	"buildPresets": [
+		{
+			"name": "base",
+			"hidden": true,
+			"jobs": 16
+		},
+
+		{
+			"name": "ninja-clang-x64-dev-build",
+			"hidden": true,
+			"configurePreset": "ninja-clang-x64-dev",
+			"inherits": [ "base" ]
+		},
+
+		{ "name": "ninja-clang-x64-dev-rel", "configuration": "Release", "inherits": [ "ninja-clang-x64-dev-build" ] },
+		{ "name": "ninja-clang-x64-dev-deb", "configuration": "Debug", "inherits": [ "ninja-clang-x64-dev-build" ] }
+
+	]
+}

@@ -31,16 +31,16 @@ public:
 
 private:
 	graphics::device &m_device;
-	VkBuffer          m_vertex_buffer;
-	VkDeviceMemory    m_vertex_buffer_memory;
-	u32               m_vertex_count;
+	VkBuffer          m_vertex_buffer{};
+	VkDeviceMemory    m_vertex_buffer_memory{};
+	u32               m_vertex_count{};
 
 	void construct_vertex_buffers(const std::span<const vertex> vertices);
 };
 
 struct model::vertex {
-	glm::vec3 position;
-	glm::vec4 color;
+	glm::vec3 position{};
+	glm::vec4 color{};
 
 
 	[[nodiscard]] static auto binding_description()

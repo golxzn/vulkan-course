@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include <fmt/core.h>
+#include <memory_resource>
 
 #include "engine/resources/model.hpp"
 #include "engine/graphics/pipeline.hpp"
@@ -38,11 +39,15 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 		return VkShaderStageFlagBits{};
 	} };
 
-	std::vector<VkPipelineShaderStageCreateInfo> stages;
+	std::array<VkPipelineShaderStageCreateInfo, constants::maximum_possible_shaders> buffer{};
+	std::pmr::monotonic_buffer_resource resource{ std::data(buffer), std::size(buffer) };
+	std::pmr::polymorphic_allocator allocator{ &resource };
+
+	std::pmr::vector<VkPipelineShaderStageCreateInfo> stages{ allocator };
 	stages.reserve(shaders_count);
 
 	for (const auto &[type, shader_module] : m_shaders) {
-		if (shader_module == nullptr) continue;
+		if (shader_module == nullptr) [[unlikely]] continue;
 
 		stages.emplace_back(
 			/*.sType  = */ VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
@@ -110,7 +115,7 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 		&m_pipeline
 	) };
 
-	if (VK_SUCCESS != status) {
+	if (VK_SUCCESS != status) [[unlikely]] {
 		throw pipeline_error{ "Cannot create graphics pipeline." };
 	}
 }
@@ -118,7 +123,7 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 pipeline::~pipeline() {
 	const auto device{ m_device.handle() };
 	for (const auto &[_, shader_module] : m_shaders) {
-		if (shader_module != nullptr) {
+		if (shader_module != nullptr) [[likely]] {
 			vkDestroyShaderModule(device, shader_module, nullptr);
 		}
 	}
@@ -130,7 +135,7 @@ void pipeline::bind(VkCommandBuffer buffer, const VkPipelineBindPoint bind_point
 	vkCmdBindPipeline(buffer, bind_point, m_pipeline);
 }
 
-size_t pipeline::load_shaders(const std::string_view shader) {
+auto pipeline::load_shaders(const std::string_view shader) -> size_t {
 	const auto name_length{ std::size(shader) };
 
 	std::string filename(
@@ -145,9 +150,10 @@ size_t pipeline::load_shaders(const std::string_view shader) {
 	std::vector<char> content(constants::content_buffer_initial_size);
 	for (const auto &[type, extension] : constants::shader_extensions) {
 		std::copy_n(std::begin(extension), std::size(extension),
-			std::next(std::begin(filename), name_length));
+			std::next(std::begin(filename), name_length)
+		);
 
-		if (load_file_to(content, filename)) {
+		if (load_file_to(content, filename)) [[likely]] {
 			m_shaders.insert_or_assign(type, make_shader(filename, content));
 			++loaded_counter;
 		}
@@ -155,7 +161,7 @@ size_t pipeline::load_shaders(const std::string_view shader) {
 	return loaded_counter;
 }
 
-VkShaderModule pipeline::make_shader(const std::string_view filename, const std::vector<char> &code) {
+auto pipeline::make_shader(const std::string_view filename, const std::vector<char> &code) -> VkShaderModule {
 	const VkShaderModuleCreateInfo create_info{
 		.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
 		.codeSize = static_cast<u32>(std::size(code)),
@@ -171,7 +177,7 @@ VkShaderModule pipeline::make_shader(const std::string_view filename, const std:
 	return shader;
 }
 
-bool pipeline::load_file_to(std::vector<char> &buffer, const std::string_view filename) {
+auto pipeline::load_file_to(std::vector<char> &buffer, const std::string_view filename) -> bool {
 	if (std::ifstream file{ std::data(filename), std::ios::ate | std::ios::binary }; file.is_open()) {
 		buffer.resize(static_cast<size_t>(file.tellg()));
 		file.seekg(std::ios::beg);
@@ -197,7 +203,7 @@ pipeline_layout::pipeline_layout(device &dev,
 		.pPushConstantRanges    = std::data(constant_ranges)
 	};
 
-	if (VK_SUCCESS != vkCreatePipelineLayout(m_device.handle(), &layout_info, nullptr, &m_layout)) {
+	if (VK_SUCCESS != vkCreatePipelineLayout(m_device.handle(), &layout_info, nullptr, &m_layout)) [[unlikely]] {
 		throw pipeline_error{ "Failed to create pipeline layout." };
 	}
 }

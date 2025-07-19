@@ -1,6 +1,7 @@
 #include <string>
 #include <algorithm>
 #include <unordered_set>
+#include <memory_resource>
 
 #include <fmt/core.h>
 
@@ -204,9 +205,17 @@ void vulkan_instance::has_glfw_required_instance_extensions() const {
 		}
 		return result;
 	}(extensions) };
+	const auto are_available{ [&available] (const auto &extension) {
+		return available.contains(extension);
+	} };
 
 	const auto required{ required_extensions() };
-	std::string missing;
+	if (std::all_of(std::begin(required), std::end(required), are_available)) {
+		return;
+	}
+
+
+	std::string missing{};
 	missing.reserve(200); // 200 to prevent a lot of reallocations
 	for (const auto &extension : required) {
 		if (!available.contains(extension)) {

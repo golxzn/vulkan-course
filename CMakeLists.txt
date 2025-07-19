@@ -10,11 +10,7 @@ project(vulkan-course
 
 include(vc-config)
 
-#=========================== DEPENDENCIES ============================#
-
-add_subdirectory(${vc_deps_dir})
-
-#=========================== MAIN  TARGET ============================#
+# >------------------------| MAIN  TARGET |-------------------------< #
 
 add_executable(${PROJECT_NAME})
 
@@ -32,8 +28,11 @@ file(GLOB_RECURSE vc_sources CONFIGURE_DEPENDS ${vc_code_dir}/*.cpp)
 target_sources(${PROJECT_NAME} PRIVATE ${vc_sources})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${vc_root}/code/ ${vc_gen_dir})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${ALIAS_PREFIX}::deps)
 
-#============================= RESOURCES =============================#
+# >------------------------| DEPENDENCIES |-------------------------< #
+
+add_subdirectory(${vc_deps_dir})
+
+# >--------------------------| RESOURCES |--------------------------< #
 
 add_subdirectory(${vc_assets_dir})

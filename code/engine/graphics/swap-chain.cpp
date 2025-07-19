@@ -23,8 +23,8 @@ swap_chain::~swap_chain() {
 		vkDestroyImageView(device, image_view, nullptr);
 	}
 
-	if (m_swap_chain != nullptr) {
-		vkDestroySwapchainKHR(device, std::exchange(m_swap_chain, nullptr), nullptr);
+	if (m_swap_chain != VK_NULL_HANDLE) {
+		vkDestroySwapchainKHR(device, std::exchange(m_swap_chain, VK_NULL_HANDLE), nullptr);
 	}
 
 	for (size_t i{}; i < std::size(m_depth_images); ++i) {
@@ -46,23 +46,30 @@ swap_chain::~swap_chain() {
 	}
 }
 
-f32 swap_chain::aspect_ratio() const noexcept {
+auto swap_chain::aspect_ratio() const noexcept -> f32 {
 	return static_cast<f32>(m_extent.width) / static_cast<f32>(m_extent.height);
 }
 
-VkFormat swap_chain::find_depth_format() const {
+auto swap_chain::find_depth_format() const -> VkFormat {
+	constexpr std::array depth_format_candidates{
+		VK_FORMAT_D32_SFLOAT,
+		VK_FORMAT_D32_SFLOAT_S8_UINT,
+		VK_FORMAT_D24_UNORM_S8_UINT
+	};
+
 	return m_device.find_supported_format(
-		{ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT },
+		depth_format_candidates,
 		VK_IMAGE_TILING_OPTIMAL,
 		VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT
 	);
 }
 
-std::optional<u32> swap_chain::acquire_next_image() {
+auto swap_chain::acquire_next_image() -> std::optional<u32> {
 	vkWaitForFences(m_device.handle(), 1, &m_in_flight_fences[m_current_frame],
-		VK_TRUE, constants::fence_wait_timeout);
+		VK_TRUE, constants::fence_wait_timeout
+	);
 
-	u32 image_index;
+	u32 image_index{};
 	const auto result{ vkAcquireNextImageKHR(
 		m_device.handle(),
 		m_swap_chain,
@@ -74,7 +81,7 @@ std::optional<u32> swap_chain::acquire_next_image() {
 	return VK_SUCCESS == result ? std::make_optional(image_index) : std::nullopt;
 }
 
-VkResult swap_chain::submit(u32 image_index, const VkCommandBuffer *buffers, u32 buffers_count) {
+auto swap_chain::submit(u32 image_index, const VkCommandBuffer *buffers, u32 buffers_count) -> VkResult {
 	if (auto current_image_fence{ m_images_in_flight[image_index] }; current_image_fence != VK_NULL_HANDLE) {
 		vkWaitForFences(m_device.handle(), 1, &current_image_fence, VK_TRUE, constants::fence_wait_timeout);
 	}
@@ -99,7 +106,7 @@ VkResult swap_chain::submit(u32 image_index, const VkCommandBuffer *buffers, u32
 	};
 
 	vkResetFences(m_device.handle(), 1, current_fence_ptr);
-	if (VK_SUCCESS != vkQueueSubmit(m_device.graphics_queue(), 1, &submit_info, *current_fence_ptr)) {
+	if (VK_SUCCESS != vkQueueSubmit(m_device.graphics_queue(), 1, &submit_info, *current_fence_ptr)) [[unlikely]] {
 		throw swap_chain_error{ "Failed to submit draw command buffer" };
 	}
 
@@ -123,18 +130,18 @@ void swap_chain::construct_swap_chain() {
 	const auto support{ m_device.query_swap_chain_support() };
 	const u32 image_count{ [] (const auto &capabilities) {
 		const u32 count{ capabilities.minImageCount + 1 };
-		if (capabilities.maxImageCount > 0 && count > capabilities.maxImageCount) {
+		if (capabilities.maxImageCount > 0 && count > capabilities.maxImageCount) [[unlikely]] {
 			return capabilities.maxImageCount;
 		}
 		return count;
 	}(support.capabilities) };
 
-	auto [graphics_family, present_family]{ m_device.find_queue_families() };
+	const auto [graphics_family, present_family]{ m_device.find_queue_families() };
 	// TODO: Check optional families. It actually matters
-	constexpr u32 queue_family_indices_count{ 2 };
+	constexpr u32 queue_family_indices_count{ 2u };
 	const std::array<u32, queue_family_indices_count> queue_family_indices{
-		graphics_family.value_or(0),
-		present_family.value_or(0)
+		graphics_family.value_or(0u),
+		present_family.value_or(0u)
 	};
 	const bool is_concurrent{ graphics_family == present_family };
 	const auto sharing_mode{ is_concurrent ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE };
@@ -158,12 +165,13 @@ void swap_chain::construct_swap_chain() {
 		.clipped               = VK_TRUE,
 		.oldSwapchain          = VK_NULL_HANDLE
 	};
-	if (VK_SUCCESS != vkCreateSwapchainKHR(m_device.handle(), &create_info, nullptr, &m_swap_chain)) {
+	if (VK_SUCCESS != vkCreateSwapchainKHR(m_device.handle(), &create_info, nullptr, &m_swap_chain)) [[unlikely]] {
 		throw swap_chain_error{ "Failed to create swap chain." };
 	}
 
 	u32 total_images_count{};
 	vkGetSwapchainImagesKHR(m_device.handle(), m_swap_chain, &total_images_count, nullptr);
+
 	m_images.resize(total_images_count);
 	vkGetSwapchainImagesKHR(m_device.handle(), m_swap_chain, &total_images_count, std::data(m_images));
 
@@ -188,7 +196,7 @@ void swap_chain::construct_image_views() {
 				.layerCount     = 1
 			}
 		};
-		if (vkCreateImageView(device, &create_info, nullptr, &m_image_views[i]) != VK_SUCCESS) {
+		if (vkCreateImageView(device, &create_info, nullptr, &m_image_views[i]) != VK_SUCCESS) [[unlikely]] {
 			throw swap_chain_error{ "Failed to create texture image view." };
 		}
 	}
@@ -257,7 +265,7 @@ void swap_chain::construct_render_pass() {
 		.dependencyCount = 1,
 		.pDependencies   = &dependency
 	};
-	if (VK_SUCCESS != vkCreateRenderPass(m_device.handle(), &render_pass_info, nullptr, &m_render_pass)) {
+	if (VK_SUCCESS != vkCreateRenderPass(m_device.handle(), &render_pass_info, nullptr, &m_render_pass)) [[unlikely]] {
 		throw swap_chain_error{ "Failed to create render pass." };
 	}
 }
@@ -301,7 +309,7 @@ void swap_chain::construct_depth_resources() {
 				.baseArrayLayer = 0, .layerCount = 1,
 			}
 		};
-		if (VK_SUCCESS != vkCreateImageView(device, &view_info, nullptr, &m_depth_image_views[i])) {
+		if (VK_SUCCESS != vkCreateImageView(device, &view_info, nullptr, &m_depth_image_views[i])) [[unlikely]] {
 			throw swap_chain_error{ "Failed to create texture image view." };
 		}
 	}
@@ -321,7 +329,7 @@ void swap_chain::construct_framebuffers() {
 			.height          = m_extent.height,
 			.layers          = 1
 		};
-		if (VK_SUCCESS != vkCreateFramebuffer(device, &create_info, nullptr, &m_framebuffers[i])) {
+		if (VK_SUCCESS != vkCreateFramebuffer(device, &create_info, nullptr, &m_framebuffers[i])) [[unlikely]] {
 			throw swap_chain_error{ "Failed to create a framebuffer." };
 		}
 	}
@@ -346,7 +354,7 @@ void swap_chain::construct_sync_objects() {
 			vkCreateSemaphore(device, &semaphore_info, nullptr, &m_render_finished_semaphores[i])  &
 			vkCreateFence(device, &fence_info, nullptr, &m_in_flight_fences[i])
 		};
-		if (result != VK_SUCCESS) {
+		if (result != VK_SUCCESS) [[unlikely]] {
 			throw swap_chain_error{ "Failed to create syncronization objects for a frame." };
 		}
 	}
@@ -356,7 +364,7 @@ void swap_chain::construct_sync_objects() {
 
 #pragma region select methods
 
-VkSurfaceFormatKHR swap_chain::select_surface_format(const std::vector<VkSurfaceFormatKHR> &available) {
+auto swap_chain::select_surface_format(const std::vector<VkSurfaceFormatKHR> &available) -> VkSurfaceFormatKHR {
 	static constexpr auto required_format_and_color_space{ [] (const auto &surface) {
 		return (surface.format     == constants::surface_format)
 		&&     (surface.colorSpace == constants::color_space);
@@ -368,7 +376,7 @@ VkSurfaceFormatKHR swap_chain::select_surface_format(const std::vector<VkSurface
 	return available.front();
 }
 
-VkPresentModeKHR swap_chain::select_present_mode(const std::vector<VkPresentModeKHR> &available) {
+auto swap_chain::select_present_mode(const std::vector<VkPresentModeKHR> &available) -> VkPresentModeKHR {
 	namespace stdr = std::ranges;
 	if (auto found{ stdr::find(available, VK_PRESENT_MODE_MAILBOX_KHR) }; found != std::end(available)) {
 		return *found;
@@ -377,8 +385,8 @@ VkPresentModeKHR swap_chain::select_present_mode(const std::vector<VkPresentMode
 	return VK_PRESENT_MODE_FIFO_KHR;
 }
 
-VkExtent2D swap_chain::select_extent(const VkSurfaceCapabilitiesKHR &caps) {
-	if (caps.currentExtent.width != std::numeric_limits<u32>::max()) {
+auto swap_chain::select_extent(const VkSurfaceCapabilitiesKHR &caps) -> VkExtent2D {
+	if (caps.currentExtent.width != std::numeric_limits<u32>::max()) [[unlikely]] {
 		return caps.currentExtent;
 	}
 

@@ -35,6 +35,7 @@ constexpr std::string_view shader_stage_entry_point      { "main"          };
 constexpr std::string_view compiled_shader_file_extension{ ".spv"          };
 constexpr size_t           shader_file_extention_size    { sizeof(".vert") };
 constexpr size_t           content_buffer_initial_size   { 2048            };
+constexpr u32              maximum_possible_shaders      { 6u              }; // shader_type
 
 static const std::unordered_map<shader_type, std::string_view> shader_extensions{
 	{ shader_type::vertex,                   ".vert" },
@@ -92,7 +93,7 @@ public:
 
 private:
 	device &m_device;
-	VkPipelineLayout m_layout;
+	VkPipelineLayout m_layout{ VK_NULL_HANDLE };
 };
 
 } // namespace vc::engine::graphics

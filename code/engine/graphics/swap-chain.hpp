@@ -54,25 +54,25 @@ public:
 private:
 	device                      &m_device;
 
-	VkSwapchainKHR               m_swap_chain{ nullptr };
+	VkSwapchainKHR               m_swap_chain{ VK_NULL_HANDLE };
 
-	VkFormat                     m_image_format;
-	VkExtent2D                   m_extent;
-	VkExtent2D                   m_window_extent;
+	VkFormat                     m_image_format{ VK_FORMAT_UNDEFINED };
+	VkExtent2D                   m_extent{};
+	VkExtent2D                   m_window_extent{};
 
-	std::vector<VkFramebuffer>   m_framebuffers;
-	VkRenderPass                 m_render_pass;
+	std::vector<VkFramebuffer>   m_framebuffers{};
+	VkRenderPass                 m_render_pass{ VK_NULL_HANDLE };
 
-	std::vector<VkImage>         m_depth_images;
-	std::vector<VkDeviceMemory>  m_depth_image_memories;
-	std::vector<VkImageView>     m_depth_image_views;
-	std::vector<VkImage>         m_images;
-	std::vector<VkImageView>     m_image_views;
+	std::vector<VkImage>         m_depth_images{};
+	std::vector<VkDeviceMemory>  m_depth_image_memories{};
+	std::vector<VkImageView>     m_depth_image_views{};
+	std::vector<VkImage>         m_images{};
+	std::vector<VkImageView>     m_image_views{};
 
-	max_frame_array<VkSemaphore> m_available_images_semaphores;
-	max_frame_array<VkSemaphore> m_render_finished_semaphores;
-	max_frame_array<VkFence>     m_in_flight_fences;
-	std::vector<VkFence>         m_images_in_flight;
+	max_frame_array<VkSemaphore> m_available_images_semaphores{};
+	max_frame_array<VkSemaphore> m_render_finished_semaphores{};
+	max_frame_array<VkFence>     m_in_flight_fences{};
+	std::vector<VkFence>         m_images_in_flight{};
 
 	size_t m_current_frame{};
 

@@ -1,6 +1,7 @@
 #include <ranges>
 #include <algorithm>
 #include <unordered_set>
+#include <memory_resource>
 
 #include <fmt/core.h>
 
@@ -37,7 +38,7 @@ swap_chain_support_details device::query_swap_chain_support() {
 	return query_swap_chain_support(m_physical_device);
 }
 
-u32 device::find_memory_type(const u32 filter, const VkMemoryPropertyFlags properties) {
+auto device::find_memory_type(const u32 filter, const VkMemoryPropertyFlags properties) -> u32 {
 	VkPhysicalDeviceMemoryProperties memory_properties;
 	vkGetPhysicalDeviceMemoryProperties(m_physical_device, &memory_properties);
 
@@ -61,13 +62,13 @@ u32 device::find_memory_type(const u32 filter, const VkMemoryPropertyFlags prope
 	) };
 }
 
-queue_family_indices device::find_queue_families() {
+auto device::find_queue_families() -> queue_family_indices {
 	return find_queue_families(m_physical_device);
 }
 
-VkFormat device::find_supported_format(const std::vector<VkFormat> &candidates,
+auto device::find_supported_format(const std::span<const VkFormat> candidates,
 	VkImageTiling tiling, VkFormatFeatureFlags features
-) {
+) -> VkFormat {
 	VkFormatProperties props;
 	const VkFormatFeatureFlags *selected_features{ nullptr };
 	switch (tiling) {
@@ -91,10 +92,10 @@ VkFormat device::find_supported_format(const std::vector<VkFormat> &candidates,
 	throw device_error{ "Failed to find supported format." };
 }
 
-VkBuffer device::make_buffer(
+auto device::make_buffer(
 	const VkDeviceSize size, const VkBufferUsageFlags usage,
 	const VkMemoryPropertyFlags properties, VkDeviceMemory &buffer_memory
-) {
+) -> VkBuffer {
 	const VkBufferCreateInfo buffer_info{
 		.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
 		.size        = size,
@@ -129,7 +130,7 @@ VkBuffer device::make_buffer(
 }
 
 
-VkCommandBuffer device::begin_single_time_commands() {
+auto device::begin_single_time_commands() -> VkCommandBuffer {
 	const VkCommandBufferAllocateInfo allocate_info{
 		.sType              = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
 		.commandPool        = m_command_pool,
@@ -193,7 +194,9 @@ void device::wait_for_idle() const noexcept {
 	vkDeviceWaitIdle(m_device);
 }
 
-VkImage device::make_image(const VkImageCreateInfo &info, VkMemoryPropertyFlags properties, VkDeviceMemory &image_memory) {
+auto device::make_image(
+	const VkImageCreateInfo &info, VkMemoryPropertyFlags properties, VkDeviceMemory &image_memory
+) -> VkImage {
 	VkImage image;
 	if (VK_SUCCESS != vkCreateImage(m_device, &info, nullptr, &image)) {
 		throw device_error{ "Cannot create image." };
@@ -231,14 +234,20 @@ void device::construct_surface(core::window &window) {
 void device::select_physical_device() {
 	u32 device_count{};
 	vkEnumeratePhysicalDevices(m_instance.handle(), &device_count, nullptr);
-	if (device_count == 0) {
+	if (device_count == 0) [[unlikely]] {
 		throw device_error{ "Failed to find Vulkan-supported GPUs" };
 	}
-	std::vector<VkPhysicalDevice> devices(device_count);
+	device_count = std::min(device_count, constants::maximum_available_devices);
+
+	std::array<VkPhysicalDevice, constants::maximum_available_devices> buffer{};
+	std::pmr::monotonic_buffer_resource resource{ std::data(buffer), std::size(buffer) };
+	std::pmr::polymorphic_allocator<VkPhysicalDevice> allocator{ &resource };
+
+	std::pmr::vector<VkPhysicalDevice> devices(device_count, allocator);
 	vkEnumeratePhysicalDevices(m_instance.handle(), &device_count, std::data(devices));
 
 	const auto suitable{ [this] (const auto &device) { return is_suitable(device); } };
-	if (auto found{ std::ranges::find_if(devices, suitable) }; found != std::end(devices)) {
+	if (auto found{ std::ranges::find_if(devices, suitable) }; found != std::end(devices)) [[likely]] {
 		m_physical_device = *found;
 		vkGetPhysicalDeviceProperties(m_physical_device, &m_physical_device_properties);
 		std::printf("[ending][graphics][device] Selected device: %s\n",
@@ -264,7 +273,7 @@ void device::construct_logical_device() {
 	}
 
 	f32 priority{ 1.0f };
-	const std::vector<VkDeviceQueueCreateInfo> queue_create_infos{
+	const std::array queue_create_infos{
 		make_queue_info(indices.graphics_family.value_or(0), &priority),
 		make_queue_info(indices.present_family.value_or(0), &priority)
 	};
@@ -310,7 +319,7 @@ void device::construct_command_pool() {
 #pragma endregion construct methods
 
 
-bool device::is_suitable(VkPhysicalDevice device) {
+auto device::is_suitable(VkPhysicalDevice device) -> bool {
 	if (!check_device_extension_support(device)) return false;
 	if (const auto indices{ find_queue_families(device) }; !indices.is_complete()) return false;
 	if (const auto support{ query_swap_chain_support(device) }; !support.is_adequate()) return false;
@@ -320,7 +329,7 @@ bool device::is_suitable(VkPhysicalDevice device) {
 	return features.samplerAnisotropy;
 }
 
-bool device::check_device_extension_support(VkPhysicalDevice device) {
+auto device::check_device_extension_support(VkPhysicalDevice device) -> bool {
 	u32 extensions_count{};
 	vkEnumerateDeviceExtensionProperties(device, nullptr, &extensions_count, nullptr);
 
@@ -336,15 +345,18 @@ bool device::check_device_extension_support(VkPhysicalDevice device) {
 	return std::ranges::all_of(constants::device_extensions, supported_by_device);
 }
 
-queue_family_indices device::find_queue_families(VkPhysicalDevice device) {
+auto device::find_queue_families(VkPhysicalDevice device) -> queue_family_indices {
 	u32 queue_family_count{};
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
 
-	std::vector<VkQueueFamilyProperties> queue_families(queue_family_count);
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count,
-		std::data(queue_families));
+	std::array<VkQueueFamilyProperties, constants::maximum_possible_queue_families> buffer{};
+	std::pmr::monotonic_buffer_resource resource{ std::data(buffer), std::size(buffer) };
+	std::pmr::polymorphic_allocator<VkPhysicalDevice> allocator{ &resource };
 
-	queue_family_indices indices;
+	std::pmr::vector<VkQueueFamilyProperties> queue_families(queue_family_count, allocator);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, std::data(queue_families));
+
+	queue_family_indices indices{};
 	for (u32 family_id{}; family_id < queue_family_count && !indices.is_complete(); ++family_id) {
 		const auto &family{ queue_families[family_id] };
 		if (family.queueCount == 0) continue;
@@ -362,24 +374,26 @@ queue_family_indices device::find_queue_families(VkPhysicalDevice device) {
 	return indices;
 }
 
-swap_chain_support_details device::query_swap_chain_support(VkPhysicalDevice device) {
+auto device::query_swap_chain_support(VkPhysicalDevice device) -> swap_chain_support_details {
 	swap_chain_support_details details;
 	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
 
-	u32 format_count;
+	u32 format_count{};
 	vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &format_count, nullptr);
 	if (format_count != 0) {
 		details.formats.resize(format_count);
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &format_count,
-			std::data(details.formats));
+			std::data(details.formats)
+		);
 	}
 
-	u32 present_mode_count;
+	u32 present_mode_count{};
 	vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &present_mode_count, nullptr);
 	if (present_mode_count != 0) {
 		details.present_modes.resize(present_mode_count);
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &present_mode_count,
-			std::data(details.present_modes));
+			std::data(details.present_modes)
+		);
 	}
 
 	return details;

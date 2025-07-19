@@ -1,8 +1,9 @@
 #pragma once
 
+#include <span>
 #include <array>
 #include <vector>
-#include <exception>
+#include <optional>
 #include <stdexcept>
 
 #include "core/window.hpp"
@@ -13,6 +14,8 @@ class vulkan_instance;
 
 namespace constants {
 
+constexpr u32 maximum_possible_queue_families{ 16 };
+constexpr u32 maximum_available_devices{ 64 };
 constexpr std::array device_extensions{
 	VK_KHR_SWAPCHAIN_EXTENSION_NAME
 };
@@ -20,16 +23,16 @@ constexpr std::array device_extensions{
 } // namespace constants
 
 struct swap_chain_support_details {
-	VkSurfaceCapabilitiesKHR capabilities;
-	std::vector<VkSurfaceFormatKHR> formats;
-	std::vector<VkPresentModeKHR> present_modes;
+	VkSurfaceCapabilitiesKHR capabilities{};
+	std::vector<VkSurfaceFormatKHR> formats{};
+	std::vector<VkPresentModeKHR> present_modes{};
 
 	[[nodiscard]] bool is_adequate() const noexcept;
 };
 
 struct queue_family_indices {
-	std::optional<u32> graphics_family;
-	std::optional<u32> present_family;
+	std::optional<u32> graphics_family{};
+	std::optional<u32> present_family{};
 
 	[[nodiscard]] bool is_complete() const noexcept;
 };
@@ -54,7 +57,7 @@ public:
 	[[nodiscard]] auto query_swap_chain_support() -> swap_chain_support_details;
 	[[nodiscard]] auto find_memory_type(u32 filter, VkMemoryPropertyFlags properties) -> u32;
 	[[nodiscard]] auto find_queue_families() -> queue_family_indices;
-	[[nodiscard]] auto find_supported_format(const std::vector<VkFormat> &candidates,
+	[[nodiscard]] auto find_supported_format(const std::span<const VkFormat> candidates,
 		VkImageTiling tiling, VkFormatFeatureFlags features) -> VkFormat;
 
 	[[nodiscard]] auto make_buffer(VkDeviceSize size, VkBufferUsageFlags usage,

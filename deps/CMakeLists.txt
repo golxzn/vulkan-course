@@ -9,35 +9,35 @@ macro(vc_add_subdirectory name link_target)
 endmacro()
 
 
-#============================ Vulkan ============================#
+# >-------------------------| Vulkan |-------------------------< #
 
 find_package(Vulkan REQUIRED)
 list(APPEND libraries Vulkan::Vulkan Vulkan::Headers)
 
-#============================= glfw =============================#
+# >--------------------------| glfw |--------------------------< #
 
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
 option(GLFW_INSTALL    "Generate installation target" OFF)
 vc_add_subdirectory(glfw glfw)
 
-#============================= glm ==============================#
+# >--------------------------| glm |---------------------------< #
 
 option(GLM_ENABLE_CXX_20 "Enable C++20 features" ON)
+option(GLM_ENABLE_SIMD_AVX "Enable AVX optimizations" ON)
+option(GLM_ENABLE_SIMD_AVX2 "Enable AVX2 optimizations" ON)
 vc_add_subdirectory(glm glm::glm)
 target_compile_definitions(glm PUBLIC
 	GLM_FORCE_RADIANS
 	GLM_FORCE_DEPTH_ZERO_TO_ONE
 )
 
-#============================= fmt ==============================#
+# >--------------------------| fmt |---------------------------< #
 
 vc_add_subdirectory(fmt fmt::fmt)
 
-#================== LIBRARIES CONTAINER TARGET ==================#
+# >------------------------------------------------------------< #
 
-add_library(vc_deps INTERFACE)
-add_library(${ALIAS_PREFIX}::deps ALIAS vc_deps)
-target_link_libraries(vc_deps INTERFACE ${libraries})
+target_link_libraries(${PROJECT_NAME} PUBLIC ${libraries})
 
 unset(libraries)
 

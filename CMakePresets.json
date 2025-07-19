@@ -38,7 +38,14 @@
 		{
 			"name": "ninja-clang-x64-dev",
 			"inherits": [ "common", "ninja", "clang" ],
-			"displayName": "[Ninja][Clang] x64 development"
+			"displayName": "[Ninja][Clang][Dev] x64 development",
+			"cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+		},
+		{
+			"name": "ninja-clang-x64-rel",
+			"inherits": [ "common", "ninja", "clang" ],
+			"displayName": "[Ninja][Clang][Rel] x64 development",
+			"cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
 		}
 	],
 	"buildPresets": [
@@ -48,15 +55,7 @@
 			"jobs": 16
 		},
 
-		{
-			"name": "ninja-clang-x64-dev-build",
-			"hidden": true,
-			"configurePreset": "ninja-clang-x64-dev",
-			"inherits": [ "base" ]
-		},
-
-		{ "name": "ninja-clang-x64-dev-rel", "configuration": "Release", "inherits": [ "ninja-clang-x64-dev-build" ] },
-		{ "name": "ninja-clang-x64-dev-deb", "configuration": "Debug", "inherits": [ "ninja-clang-x64-dev-build" ] }
-
+		{ "name": "ninja-clang-x64-dev-dev", "displayName": "Clang Dev", "configurePreset": "ninja-clang-x64-dev", "configuration": "Debug",   "inherits": [ "base" ] },
+		{ "name": "ninja-clang-x64-dev-rel", "displayName": "Clang Rel", "configurePreset": "ninja-clang-x64-rel", "configuration": "Release", "inherits": [ "base" ] }
 	]
 }

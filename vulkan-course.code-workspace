@@ -6,6 +6,21 @@
 		"version": "0.2.0",
 		"configurations": [
 			{
+				"name": "[LLDB][CMake] Launch",
+				"type": "lldb",
+				// "MIMode": "lldb",
+				// "externalConsole": true,
+				"request": "launch",
+				"program": "${command:cmake.launchTargetPath}",
+				"cwd": "${workspaceFolder}",
+				// "environment": [
+				// 	{
+				// 		"name": "PATH",
+				// 		"value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+				// 	}
+				// ]
+			},
+			{
 				"name": "[DBG][CMake] Launch",
 				"type": "cppdbg",
 				"request": "launch",
@@ -24,6 +39,13 @@
 					"MIMode": "gdb",
 					"miDebuggerPath": "gdb.exe"
 				},
+				"setupCommands": [
+					{
+						"description": "Enable pretty-printing for gdb",
+						"text": "-enable-pretty-printing",
+						"ignoreFailures": true
+					}
+				]
 			},
 			{
 				"name": "[VSDBG][CMake] Launch",
@@ -38,6 +60,9 @@
 	},
 	"settings": {
 		"cmake.useCMakePresets": "always",
+		"cmake.debugConfig": {
+			"type": "lldb"
+		},
 
 		"cSpell.words": [
 			"directx"

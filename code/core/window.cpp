@@ -33,18 +33,19 @@ bool window::key_pressed(const int32_t key) const noexcept {
 	return glfwGetKey(m_window.get(), key) == GLFW_PRESS;
 }
 
-VkSurfaceKHR window::make_surface(const engine::graphics::vulkan_instance &instance) noexcept {
-	if (VkSurfaceKHR surface;
-		glfwCreateWindowSurface(instance.handle(), m_window.get(), nullptr, &surface) == VK_SUCCESS) {
+auto window::make_surface() noexcept -> VkSurfaceKHR {
+	const auto vk_handle{ engine::graphics::vulkan_instance::handle() };
+	if (VkSurfaceKHR surface{};
+		glfwCreateWindowSurface(vk_handle, m_window.get(), nullptr, &surface) == VK_SUCCESS) {
 		return surface;
 	}
 
 	return VK_NULL_HANDLE;
 }
 
-VkExtent2D window::extent() const noexcept {
-	i32 width;
-	i32 height;
+auto window::extent() const noexcept -> VkExtent2D {
+	i32 width{};
+	i32 height{};
 	glfwGetWindowSize(m_window.get(), &width, &height);
 	return VkExtent2D{
 		.width  = static_cast<u32>(width),
@@ -52,7 +53,7 @@ VkExtent2D window::extent() const noexcept {
 	};
 }
 
-glfw::unique_window window::make_instance(const glm::i32vec2 size, const std::string_view title) {
+auto window::make_instance(const glm::i32vec2 size, const std::string_view title) -> glfw::unique_window {
 	static bool instantiated{ false };
 	if (instantiated) {
 		std::fprintf(stderr, "[window] Fatal error! The second instance is not allowed.\n");

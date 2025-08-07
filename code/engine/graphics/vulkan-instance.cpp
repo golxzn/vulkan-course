@@ -1,7 +1,6 @@
 #include <string>
 #include <algorithm>
 #include <unordered_set>
-#include <memory_resource>
 
 #include <fmt/core.h>
 
@@ -73,7 +72,12 @@ void destroy_debug_utils_messenger(VkInstance instance,
 } // anonymous namespace
 #pragma endregion utilities
 
+
 vulkan_instance::vulkan_instance() {
+	if (m_instance != VK_NULL_HANDLE) {
+		throw vulkan_instance_error{ "Vulkan Instance is already exist!" };
+	}
+
 	construct_instance();
 #if defined(VC_DEBUG)
 	construct_debug_messenger();
@@ -177,7 +181,7 @@ void vulkan_instance::construct_instance() {
 	has_glfw_required_instance_extensions();
 }
 
-std::vector<const char *> vulkan_instance::required_extensions() const {
+auto vulkan_instance::required_extensions() const -> std::vector<const char *> {
 	u32 glfw_extensions_count{};
 	const char **glfw_extensions{ glfwGetRequiredInstanceExtensions(&glfw_extensions_count) };
 

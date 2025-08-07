@@ -8,8 +8,6 @@
 
 #include "gen/core/info/project.hpp"
 
-namespace vc::engine::graphics { class vulkan_instance; }
-
 namespace vc::core {
 
 class window {
@@ -26,7 +24,7 @@ public:
 
 	[[nodiscard]] bool is_closing() const noexcept;
 	[[nodiscard]] bool key_pressed(const i32 key) const noexcept;
-	[[nodiscard]] auto make_surface(const engine::graphics::vulkan_instance &instance) noexcept -> VkSurfaceKHR;
+	[[nodiscard]] auto make_surface() noexcept -> VkSurfaceKHR;
 	[[nodiscard]] auto extent() const noexcept -> VkExtent2D;
 
 private:

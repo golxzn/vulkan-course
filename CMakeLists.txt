@@ -4,7 +4,7 @@ set(vc_root ${CMAKE_CURRENT_SOURCE_DIR})
 include(${vc_root}/cmake/vc-prelude.cmake)
 
 project(vulkan-course
-	VERSION 0.1.2
+	VERSION 0.1.3
 	LANGUAGES CXX
 )
 

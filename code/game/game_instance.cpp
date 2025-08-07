@@ -41,20 +41,21 @@ void game_instance::update(const double delta) {
 }
 
 void game_instance::render_frame() {
-	const auto image_index{ m_swap_chain.acquire_next_image() };
-	if (!image_index.has_value()) {
+	const auto maybe_image_index{ m_swap_chain.acquire_next_image() };
+	if (!maybe_image_index.has_value()) [[unlikely]] {
 		throw game_instance_error{ "Failed to acquire next image." };
 	}
+	const auto image_index{ maybe_image_index.value_or(0u) };
 
-	record_command_buffer(*image_index);
+	record_command_buffer(image_index);
 
-	if (VK_SUCCESS != m_swap_chain.submit(*image_index, &m_command_buffers[*image_index])) {
-		throw game_instance_error{ fmt::format("Failed to submit frame buffer #{}", *image_index) };
+	if (VK_SUCCESS != m_swap_chain.submit(image_index, &m_command_buffers[image_index])) [[unlikely]] {
+		throw game_instance_error{ fmt::format("Failed to submit frame buffer #{}", image_index) };
 	}
 }
 
 void game_instance::construct_pipeline() {
-	const std::array<VkPushConstantRange, 1> ranges{
+	const std::array ranges{
 		VkPushConstantRange{
 			.stageFlags = VK_SHADER_STAGE_VERTEX_BIT,
 			.offset     = 0,
@@ -86,7 +87,10 @@ void game_instance::construct_command_buffers() {
 		.commandBufferCount = static_cast<u32>(std::size(m_command_buffers))
 	};
 
-	if (VK_SUCCESS != vkAllocateCommandBuffers(m_device.handle(), &allocate_info, std::data(m_command_buffers))) {
+	const auto allocation_status{ vkAllocateCommandBuffers(
+		m_device.handle(), &allocate_info, std::data(m_command_buffers)
+	) };
+	if (VK_SUCCESS != allocation_status) [[unlikely]] {
 		throw game_instance_error{ fmt::format(
 			"Cannot allocate {} command buffers.", std::size(m_command_buffers)
 		) };
@@ -102,7 +106,7 @@ void game_instance::record_command_buffer(size_t image_index) {
 	const VkCommandBufferBeginInfo begin_info{
 		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO
 	};
-	if (VK_SUCCESS != vkBeginCommandBuffer(command_buffer, &begin_info)) {
+	if (VK_SUCCESS != vkBeginCommandBuffer(command_buffer, &begin_info)) [[unlikely]] {
 		throw game_instance_error{ fmt::format("Failed to begin command buffer #{}.", image_index) };
 	}
 
@@ -128,12 +132,13 @@ void game_instance::record_command_buffer(size_t image_index) {
 	};
 	vkCmdPushConstants(command_buffer, static_cast<VkPipelineLayout>(*m_pipeline_layout),
 		VK_SHADER_STAGE_VERTEX_BIT,
-		0, sizeof(simple_push_constant_data), &constant_data);
+		0, sizeof(simple_push_constant_data), &constant_data
+	);
 
 	m_model->draw(command_buffer);
 
 	vkCmdEndRenderPass(command_buffer);
-	if (VK_SUCCESS != vkEndCommandBuffer(command_buffer)) {
+	if (VK_SUCCESS != vkEndCommandBuffer(command_buffer)) [[unlikely]] {
 		throw game_instance_error{ fmt::format("Failed to end command buffer #{}.", image_index) };
 	}
 }

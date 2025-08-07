@@ -21,7 +21,7 @@ bool queue_family_indices::is_complete() const noexcept {
 // ============================== device ============================== //
 #pragma region device_implementation
 
-device::device(vulkan_instance &instance, core::window &window) : m_instance{ instance } {
+device::device(core::window &window) {
 	construct_surface(window);
 	select_physical_device();
 	construct_logical_device();
@@ -31,7 +31,7 @@ device::device(vulkan_instance &instance, core::window &window) : m_instance{ in
 device::~device() {
 	vkDestroyCommandPool(m_device, m_command_pool, nullptr);
 	vkDestroyDevice(m_device, nullptr);
-	vkDestroySurfaceKHR(m_instance.handle(), m_surface, nullptr);
+	vkDestroySurfaceKHR(vulkan_instance::handle(), m_surface, nullptr);
 }
 
 swap_chain_support_details device::query_swap_chain_support() {
@@ -226,14 +226,15 @@ auto device::make_image(
 #pragma region construct methods
 
 void device::construct_surface(core::window &window) {
-	if (m_surface = window.make_surface(m_instance); m_surface == VK_NULL_HANDLE) {
+	if (m_surface = window.make_surface(); m_surface == VK_NULL_HANDLE) {
 		throw device_error{ "Failed to create the surface." };
 	}
 }
 
 void device::select_physical_device() {
 	u32 device_count{};
-	vkEnumeratePhysicalDevices(m_instance.handle(), &device_count, nullptr);
+	const auto vk_handle{ vulkan_instance::handle() };
+	vkEnumeratePhysicalDevices(vk_handle, &device_count, nullptr);
 	if (device_count == 0) [[unlikely]] {
 		throw device_error{ "Failed to find Vulkan-supported GPUs" };
 	}
@@ -244,7 +245,7 @@ void device::select_physical_device() {
 	std::pmr::polymorphic_allocator<VkPhysicalDevice> allocator{ &resource };
 
 	std::pmr::vector<VkPhysicalDevice> devices(device_count, allocator);
-	vkEnumeratePhysicalDevices(m_instance.handle(), &device_count, std::data(devices));
+	vkEnumeratePhysicalDevices(vk_handle, &device_count, std::data(devices));
 
 	const auto suitable{ [this] (const auto &device) { return is_suitable(device); } };
 	if (auto found{ std::ranges::find_if(devices, suitable) }; found != std::end(devices)) [[likely]] {

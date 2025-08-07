@@ -16,7 +16,7 @@ constexpr std::array validation_layers{
 
 } // namespace constants
 
-class vulkan_instance {
+class vulkan_instance final {
 public:
 	vulkan_instance();
 	~vulkan_instance();
@@ -24,10 +24,13 @@ public:
 	vulkan_instance(const vulkan_instance&) = delete;
 	vulkan_instance &operator=(const vulkan_instance&) = delete;
 
-	[[nodiscard]] auto handle() const noexcept { return m_instance; };
+	vulkan_instance(vulkan_instance &&) noexcept = delete;
+	vulkan_instance &operator=(vulkan_instance &&) noexcept = delete;
+
+	[[nodiscard]] static auto handle() noexcept { return m_instance; };
 
 private:
-	VkInstance m_instance{ VK_NULL_HANDLE };
+	inline static VkInstance m_instance{ VK_NULL_HANDLE };
 
 #if defined(VC_DEBUG)
 	VkDebugUtilsMessengerEXT m_debug_messenger{ VK_NULL_HANDLE };

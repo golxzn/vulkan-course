@@ -10,8 +10,6 @@
 
 namespace vc::engine::graphics {
 
-class vulkan_instance;
-
 namespace constants {
 
 constexpr u32 maximum_possible_queue_families{ 16 };
@@ -40,7 +38,7 @@ struct queue_family_indices {
 
 class device {
 public:
-	explicit device(vulkan_instance &instance, core::window &window);
+	explicit device(core::window &window);
 	~device();
 
 	device(const device &) = delete;
@@ -75,9 +73,8 @@ public:
 		VkDeviceMemory &image_memory) -> VkImage;
 
 private:
-	vulkan_instance           &m_instance;
 	VkPhysicalDevice           m_physical_device           { VK_NULL_HANDLE };
-  	VkPhysicalDeviceProperties m_physical_device_properties{};
+	VkPhysicalDeviceProperties m_physical_device_properties{};
 	VkCommandPool              m_command_pool              { VK_NULL_HANDLE };
 
 	VkDevice     m_device        { VK_NULL_HANDLE };

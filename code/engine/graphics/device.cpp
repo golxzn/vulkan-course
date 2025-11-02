@@ -1,7 +1,6 @@
 #include <ranges>
 #include <algorithm>
 #include <unordered_set>
-#include <memory_resource>
 
 #include <fmt/core.h>
 
@@ -241,11 +240,8 @@ void device::select_physical_device() {
 	device_count = std::min(device_count, constants::maximum_available_devices);
 
 	std::array<VkPhysicalDevice, constants::maximum_available_devices> buffer{};
-	std::pmr::monotonic_buffer_resource resource{ std::data(buffer), std::size(buffer) };
-	std::pmr::polymorphic_allocator<VkPhysicalDevice> allocator{ &resource };
-
-	std::pmr::vector<VkPhysicalDevice> devices(device_count, allocator);
-	vkEnumeratePhysicalDevices(vk_handle, &device_count, std::data(devices));
+	vkEnumeratePhysicalDevices(vk_handle, &device_count, std::data(buffer));
+	const std::span devices{ std::data(buffer), static_cast<size_t>(device_count) };
 
 	const auto suitable{ [this] (const auto &device) { return is_suitable(device); } };
 	if (auto found{ std::ranges::find_if(devices, suitable) }; found != std::end(devices)) [[likely]] {
@@ -321,9 +317,15 @@ void device::construct_command_pool() {
 
 
 auto device::is_suitable(VkPhysicalDevice device) -> bool {
-	if (!check_device_extension_support(device)) return false;
-	if (const auto indices{ find_queue_families(device) }; !indices.is_complete()) return false;
-	if (const auto support{ query_swap_chain_support(device) }; !support.is_adequate()) return false;
+	if (!check_device_extension_support(device)) {
+		return false;
+	}
+	if (const auto indices{ find_queue_families(device) }; !indices.is_complete()) {
+		return false;
+	}
+	if (const auto support{ query_swap_chain_support(device) }; !support.is_adequate()) {
+		return false;
+	}
 
 	VkPhysicalDeviceFeatures features{};
 	vkGetPhysicalDeviceFeatures(device, &features);
@@ -347,15 +349,15 @@ auto device::check_device_extension_support(VkPhysicalDevice device) -> bool {
 }
 
 auto device::find_queue_families(VkPhysicalDevice device) -> queue_family_indices {
+	using queue_families_array = std::array<
+		VkQueueFamilyProperties, constants::maximum_possible_queue_families
+	>;
+
 	u32 queue_family_count{};
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, nullptr);
-
-	std::array<VkQueueFamilyProperties, constants::maximum_possible_queue_families> buffer{};
-	std::pmr::monotonic_buffer_resource resource{ std::data(buffer), std::size(buffer) };
-	std::pmr::polymorphic_allocator<VkPhysicalDevice> allocator{ &resource };
-
-	std::pmr::vector<VkQueueFamilyProperties> queue_families(queue_family_count, allocator);
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queue_family_count, std::data(queue_families));
+	queue_families_array queue_families{};
+	vkGetPhysicalDeviceQueueFamilyProperties(
+		device, &queue_family_count, std::data(queue_families)
+	);
 
 	queue_family_indices indices{};
 	for (u32 family_id{}; family_id < queue_family_count && !indices.is_complete(); ++family_id) {

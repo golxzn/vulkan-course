@@ -3,7 +3,6 @@
 #include <algorithm>
 
 #include <fmt/core.h>
-#include <memory_resource>
 
 #include "engine/resources/model.hpp"
 #include "engine/graphics/pipeline.hpp"
@@ -39,25 +38,21 @@ pipeline::pipeline(device &dev, const std::string_view shader, const pipeline_co
 		return VkShaderStageFlagBits{};
 	} };
 
-	std::array<VkPipelineShaderStageCreateInfo, constants::maximum_possible_shaders> buffer{};
-	std::pmr::monotonic_buffer_resource resource{ std::data(buffer), std::size(buffer) };
-	std::pmr::polymorphic_allocator allocator{ &resource };
-
-	std::pmr::vector<VkPipelineShaderStageCreateInfo> stages{ allocator };
-	stages.reserve(shaders_count);
-
+	std::array<VkPipelineShaderStageCreateInfo, constants::maximum_possible_shaders> stages{};
+	auto insert_place{ std::begin(stages) };
 	for (const auto &[type, shader_module] : m_shaders) {
 		if (shader_module == nullptr) [[unlikely]] continue;
 
-		stages.emplace_back(
-			/*.sType  = */ VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-			/*.pNext  = */ nullptr,
-			/*.flags  = */ 0,
-			/*.stage  = */ to_vk(type),
-			/*.module = */ shader_module,
-			/*.pName  = */ std::data(constants::shader_stage_entry_point),
-			/*.pSpecializationInfo = */ nullptr
-		);
+		*insert_place = {
+			.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+			.pNext  = nullptr,
+			.flags  = 0,
+			.stage  = to_vk(type),
+			.module = shader_module,
+			.pName  = std::data(constants::shader_stage_entry_point),
+			.pSpecializationInfo = nullptr
+		};
+		++insert_place;
 	}
 
 	const auto vertex_binding_descriptions{ resources::model::vertex::binding_description() };
